@@ -1,0 +1,73 @@
+@import "tailwindcss";
+/* fix: remove default browser margin/padding */
+html, body { margin: 0; padding: 0; width: 100%;
+  height: 100%; }
+
+
+
+/* optional: kabhi element width se bahar nikal jaye to horizontal scroll na aaye */
+* { box-sizing: border-box; }
+/* agar phir bhi scroll aata ho to temporarily:
+html, body { overflow-x: hidden; }  */
+.th-bg-1{
+  background: #fefefe;
+}
+.th-text-1{
+  color: #fefefe;
+}
+.th-bg-2{
+  background: #e7e9f0;
+}
+.th-text-2{
+  color: #e7e9f0;
+}
+.th-bg-3{
+  background: #051747;
+}
+.th-text-3{
+  color: #051747;
+}
+.th-bg-4{
+  background: #535f80;
+}
+.th-text-4{
+  color: #535f80;
+}
+.th-bg-5{
+  background: #081f62;
+}
+.th-text-5{
+  color: #081f62;
+}
+/* ----------------------------------Hover-------------------------------- */
+.th-bg-1:hover{
+  background: #fefefe;
+}
+.th-text-1:hover{
+  color: #fefefe;
+}
+.th-bg-2:hover{
+  background: #e7e9f0;
+}
+.th-text-2:hover{
+  color: #e7e9f0;
+}
+.th-bg-3:hover{
+  background: #051747;
+}
+.th-text-3:hover{
+  color: #051747;
+}
+.th-bg-4:hover{
+  background: #535f80;
+}
+.th-text-4:hover{
+  color: #535f80;
+}
+.th-bg-5:hover{
+  background: #0b2a88;
+}
+.th-text-5:hover{
+  color: #0b2a88;
+}
+

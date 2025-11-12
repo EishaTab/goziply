@@ -1,0 +1,492 @@
+  [
+    {
+      "name": "Atlanta",
+      "prices": {
+        "Help Moving": 32,
+        "Cleaning": 27,
+        "Delivery": 25,
+        "Furniture Assembly": 30,
+        "Painting": 38
+      }
+    },
+  {
+    "name": "Austin",
+    "prices": {
+      "Help Moving": 34,
+      "Cleaning": 28,
+      "Delivery": 26,
+      "Furniture Assembly": 32,
+      "Painting": 39
+    }
+  },
+  {
+    "name": "Baltimore",
+    "prices": {
+      "Help Moving": 31,
+      "Cleaning": 26,
+      "Delivery": 24,
+      "Furniture Assembly": 29,
+      "Painting": 37
+    }
+  },
+  {
+    "name": "Boston",
+    "prices": {
+      "Help Moving": 36,
+      "Cleaning": 30,
+      "Delivery": 28,
+      "Furniture Assembly": 34,
+      "Painting": 42
+    }
+  },
+  {
+    "name": "Charlotte",
+    "prices": {
+      "Help Moving": 33,
+      "Cleaning": 27,
+      "Delivery": 25,
+      "Furniture Assembly": 31,
+      "Painting": 38
+    }
+  },
+  {
+    "name": "Chicago",
+    "prices": {
+      "Help Moving": 37,
+      "Cleaning": 31,
+      "Delivery": 29,
+      "Furniture Assembly": 35,
+      "Painting": 43
+    }
+  },
+  {
+    "name": "Cleveland",
+    "prices": {
+      "Help Moving": 30,
+      "Cleaning": 25,
+      "Delivery": 23,
+      "Furniture Assembly": 28,
+      "Painting": 36
+    }
+  },
+  {
+    "name": "Columbus",
+    "prices": {
+      "Help Moving": 32,
+      "Cleaning": 26,
+      "Delivery": 24,
+      "Furniture Assembly": 30,
+      "Painting": 37
+    }
+  },
+  {
+    "name": "Dallas",
+    "prices": {
+      "Help Moving": 34,
+      "Cleaning": 28,
+      "Delivery": 26,
+      "Furniture Assembly": 32,
+      "Painting": 39
+    }
+  },
+  {
+    "name": "Denver",
+    "prices": {
+      "Help Moving": 33,
+      "Cleaning": 27,
+      "Delivery": 25,
+      "Furniture Assembly": 31,
+      "Painting": 38
+    }
+  },
+  {
+    "name": "Detroit",
+    "prices": {
+      "Help Moving": 31,
+      "Cleaning": 26,
+      "Delivery": 24,
+      "Furniture Assembly": 29,
+      "Painting": 36
+    }
+  },
+  {
+    "name": "El Paso",
+    "prices": {
+      "Help Moving": 29,
+      "Cleaning": 24,
+      "Delivery": 22,
+      "Furniture Assembly": 27,
+      "Painting": 35
+    }
+  },
+  {
+    "name": "Fort Worth",
+    "prices": {
+      "Help Moving": 30,
+      "Cleaning": 25,
+      "Delivery": 23,
+      "Furniture Assembly": 28,
+      "Painting": 36
+    }
+  },
+  {
+    "name": "Fresno",
+    "prices": {
+      "Help Moving": 28,
+      "Cleaning": 23,
+      "Delivery": 21,
+      "Furniture Assembly": 26,
+      "Painting": 34
+    }
+  },
+  {
+    "name": "Houston",
+    "prices": {
+      "Help Moving": 35,
+      "Cleaning": 29,
+      "Delivery": 27,
+      "Furniture Assembly": 33,
+      "Painting": 40
+    }
+  },
+  {
+    "name": "Indianapolis",
+    "prices": {
+      "Help Moving": 32,
+      "Cleaning": 26,
+      "Delivery": 24,
+      "Furniture Assembly": 30,
+      "Painting": 37
+    }
+  },
+  {
+    "name": "Jacksonville",
+    "prices": {
+      "Help Moving": 31,
+      "Cleaning": 25,
+      "Delivery": 23,
+      "Furniture Assembly": 29,
+      "Painting": 36
+    }
+  },
+  {
+    "name": "Kansas City",
+    "prices": {
+      "Help Moving": 30,
+      "Cleaning": 25,
+      "Delivery": 23,
+      "Furniture Assembly": 28,
+      "Painting": 36
+    }
+  },
+  {
+    "name": "Las Vegas",
+    "prices": {
+      "Help Moving": 33,
+      "Cleaning": 27,
+      "Delivery": 25,
+      "Furniture Assembly": 31,
+      "Painting": 39
+    }
+  },
+  {
+    "name": "Long Beach",
+    "prices": {
+      "Help Moving": 32,
+      "Cleaning": 26,
+      "Delivery": 24,
+      "Furniture Assembly": 30,
+      "Painting": 37
+    }
+  },
+  {
+    "name": "Los Angeles",
+    "prices": {
+      "Help Moving": 36,
+      "Cleaning": 30,
+      "Delivery": 28,
+      "Furniture Assembly": 34,
+      "Painting": 42
+    }
+  },
+  {
+    "name": "Louisville",
+    "prices": {
+      "Help Moving": 30,
+      "Cleaning": 25,
+      "Delivery": 23,
+      "Furniture Assembly": 28,
+      "Painting": 35
+    }
+  },
+  {
+    "name": "Memphis",
+    "prices": {
+      "Help Moving": 31,
+      "Cleaning": 26,
+      "Delivery": 24,
+      "Furniture Assembly": 29,
+      "Painting": 36
+    }
+  },
+  {
+    "name": "Mesa",
+    "prices": {
+      "Help Moving": 29,
+      "Cleaning": 24,
+      "Delivery": 22,
+      "Furniture Assembly": 27,
+      "Painting": 35
+    }
+  },
+  {
+    "name": "Miami",
+    "prices": {
+      "Help Moving": 34,
+      "Cleaning": 28,
+      "Delivery": 26,
+      "Furniture Assembly": 32,
+      "Painting": 40
+    }
+  },
+  {
+    "name": "Milwaukee",
+    "prices": {
+      "Help Moving": 30,
+      "Cleaning": 25,
+      "Delivery": 23,
+      "Furniture Assembly": 28,
+      "Painting": 35
+    }
+  },
+  {
+    "name": "Minneapolis",
+    "prices": {
+      "Help Moving": 32,
+      "Cleaning": 27,
+      "Delivery": 25,
+      "Furniture Assembly": 30,
+      "Painting": 37
+    }
+  },
+  {
+    "name": "Nashville",
+    "prices": {
+      "Help Moving": 33,
+      "Cleaning": 27,
+      "Delivery": 25,
+      "Furniture Assembly": 31,
+      "Painting": 38
+    }
+  },
+  {
+    "name": "New Orleans",
+    "prices": {
+      "Help Moving": 32,
+      "Cleaning": 26,
+      "Delivery": 24,
+      "Furniture Assembly": 30,
+      "Painting": 37
+    }
+  },
+  {
+    "name": "New York",
+    "prices": {
+      "Help Moving": 40,
+      "Cleaning": 34,
+      "Delivery": 32,
+      "Furniture Assembly": 38,
+      "Painting": 45
+    }
+  },
+  {
+    "name": "Oakland",
+    "prices": {
+      "Help Moving": 33,
+      "Cleaning": 27,
+      "Delivery": 25,
+      "Furniture Assembly": 31,
+      "Painting": 39
+    }
+  },
+  {
+    "name": "Oklahoma City",
+    "prices": {
+      "Help Moving": 30,
+      "Cleaning": 25,
+      "Delivery": 23,
+      "Furniture Assembly": 28,
+      "Painting": 36
+    }
+  },
+  {
+    "name": "Omaha",
+    "prices": {
+      "Help Moving": 29,
+      "Cleaning": 24,
+      "Delivery": 22,
+      "Furniture Assembly": 27,
+      "Painting": 35
+    }
+  },
+  {
+    "name": "Philadelphia",
+    "prices": {
+      "Help Moving": 37,
+      "Cleaning": 31,
+      "Delivery": 29,
+      "Furniture Assembly": 35,
+      "Painting": 43
+    }
+  },
+  {
+    "name": "Phoenix",
+    "prices": {
+      "Help Moving": 34,
+      "Cleaning": 28,
+      "Delivery": 26,
+      "Furniture Assembly": 32,
+      "Painting": 39
+    }
+  },
+  {
+    "name": "Portland",
+    "prices": {
+      "Help Moving": 33,
+      "Cleaning": 27,
+      "Delivery": 25,
+      "Furniture Assembly": 31,
+      "Painting": 38
+    }
+  },
+  {
+    "name": "Raleigh",
+    "prices": {
+      "Help Moving": 32,
+      "Cleaning": 26,
+      "Delivery": 24,
+      "Furniture Assembly": 30,
+      "Painting": 37
+    }
+  },
+  {
+    "name": "Sacramento",
+    "prices": {
+      "Help Moving": 32,
+      "Cleaning": 26,
+      "Delivery": 24,
+      "Furniture Assembly": 30,
+      "Painting": 37
+    }
+  },
+  {
+    "name": "San Antonio",
+    "prices": {
+      "Help Moving": 34,
+      "Cleaning": 28,
+      "Delivery": 26,
+      "Furniture Assembly": 32,
+      "Painting": 39
+    }
+  },
+  {
+    "name": "San Diego",
+    "prices": {
+      "Help Moving": 35,
+      "Cleaning": 29,
+      "Delivery": 27,
+      "Furniture Assembly": 33,
+      "Painting": 40
+    }
+  },
+  {
+    "name": "San Francisco",
+    "prices": {
+      "Help Moving": 38,
+      "Cleaning": 32,
+      "Delivery": 30,
+      "Furniture Assembly": 36,
+      "Painting": 44
+    }
+  },
+  {
+    "name": "San Jose",
+    "prices": {
+      "Help Moving": 36,
+      "Cleaning": 30,
+      "Delivery": 28,
+      "Furniture Assembly": 34,
+      "Painting": 42
+    }
+  },
+  {
+    "name": "Seattle",
+    "prices": {
+      "Help Moving": 37,
+      "Cleaning": 31,
+      "Delivery": 29,
+      "Furniture Assembly": 35,
+      "Painting": 43
+    }
+  },
+  {
+    "name": "St. Louis",
+    "prices": {
+      "Help Moving": 31,
+      "Cleaning": 26,
+      "Delivery": 24,
+      "Furniture Assembly": 29,
+      "Painting": 36
+    }
+  },
+  {
+    "name": "Tampa",
+    "prices": {
+      "Help Moving": 32,
+      "Cleaning": 26,
+      "Delivery": 24,
+      "Furniture Assembly": 30,
+      "Painting": 37
+    }
+  },
+  {
+    "name": "Tucson",
+    "prices": {
+      "Help Moving": 29,
+      "Cleaning": 24,
+      "Delivery": 22,
+      "Furniture Assembly": 27,
+      "Painting": 35
+    }
+  },
+  {
+    "name": "Virginia Beach",
+    "prices": {
+      "Help Moving": 30,
+      "Cleaning": 25,
+      "Delivery": 23,
+      "Furniture Assembly": 28,
+      "Painting": 36
+    }
+  },
+  {
+    "name": "Washington",
+    "prices": {
+      "Help Moving": 38,
+      "Cleaning": 32,
+      "Delivery": 30,
+      "Furniture Assembly": 36,
+      "Painting": 44
+    }
+  },
+  {
+    "name": "Wichita",
+    "prices": {
+      "Help Moving": 28,
+      "Cleaning": 23,
+      "Delivery": 21,
+      "Furniture Assembly": 26,
+      "Painting": 34
+    }
+  }
+]
