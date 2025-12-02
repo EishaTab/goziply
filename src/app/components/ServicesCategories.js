@@ -14,9 +14,10 @@ const ServicesCategories = () => {
         {/* Grid of categories */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {ServicesData.map((service, index) => (
-            <div
+            <Link
               key={index}
-              className="border rounded-lg shadow-sm p-4 bg-white transform transition-all duration-300 hover:-translate-y-2 hover:shadow-lg"
+              href={service.href}
+              className="border rounded-lg shadow-sm p-4 bg-white transform transition-all duration-300 hover:-translate-y-2 hover:shadow-lg block"
             >
               <div className="overflow-hidden rounded-md mb-4">
                 <img
@@ -26,17 +27,15 @@ const ServicesCategories = () => {
                 />
               </div>
 
-              <Link href={service.href}>
-                <h3 className="text-lg font-semibold text-gray-800 transition-colors duration-300 hover:text-yellow-600">
-                  {service.title}
-                </h3>
-              </Link>
+              <h3 className="text-lg font-semibold text-gray-800 transition-colors duration-300 hover:text-yellow-600">
+                {service.title}
+              </h3>
 
               <p className="text-sm text-gray-600 mb-4">{service.description}</p>
 
               <ul className="space-y-1">
                 {service.subServices?.map((link, i) => (
-                  <li key={i}>
+                  <li key={i} onClick={(e) => e.stopPropagation()}>
                     <Link
                       href={link.href}
                       className="text-gray-700 text-sm transition-colors duration-200 hover:text-yellow-600"
@@ -46,7 +45,7 @@ const ServicesCategories = () => {
                   </li>
                 ))}
               </ul>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -79,4 +78,4 @@ const ServicesCategories = () => {
   );
 };
 
-export default ServicesCategories;
+export default ServicesCategories;  

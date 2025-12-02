@@ -120,7 +120,6 @@ const ProfileDropdown = () => (
     className="absolute right-0 top-full mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg border border-slate-200"
   >
     <ul className="py-2">
-      <li><Link href="/dashboard" className="cursor-pointer block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Dashboard</Link></li>
       <li><Link href="/account" className="cursor-pointer block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Account</Link></li>
       <li className="my-1 h-px bg-slate-200"></li>
       <li><button onClick={() => signOut()} className="cursor-pointer w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button></li>

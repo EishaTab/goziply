@@ -1,9 +1,9 @@
 import SubServiceLayout from "@/app/layouts/SubServicesLayout";
-import MainCategoryLayout from "@/app/layouts/MainServicesLayout";
+import MainCategoryLayout from "@/app/layouts/MainServicesLayout"; // ✅ uncommented
 import servicesLinks from "../../data/ServicesLinks";
 import BookNow from "../book/page";
 
-// Helper function
+// Helper function to find service based on slug
 function findServiceBySlug(links, slugParam) {
   const slugArray = Array.isArray(slugParam) ? slugParam : slugParam ? [slugParam] : [];
 
@@ -26,44 +26,30 @@ function findServiceBySlug(links, slugParam) {
 
   if (sub) return { type: "sub", data: sub, parent: main };
 
-  // ===== Handle book path without changing folder structure =====
-  // e.g. /services/handyman/electrical/book
+  // Handle book path: /services/main/sub/book
   if (slugArray.length === 3 && slugArray[2] === "book") {
-    const mainSlug2 = slugArray[0];
-    const subSlug = slugArray[1];
-
     const main2 = links.find(
-      (item) => item.href.replace(/\/$/, "") === `/services/${mainSlug2}`
+      (item) => item.href.replace(/\/$/, "") === `/services/${slugArray[0]}`
     );
     const sub2 = main2?.subServices?.find(
-      (s) => s.href.replace(/\/$/, "") === `/services/${mainSlug2}/${subSlug}`
+      (s) => s.href.replace(/\/$/, "") === `/services/${slugArray[0]}/${slugArray[1]}`
     );
-
-    if (sub2) {
-      return { type: "book", data: sub2, parent: main2 };
-    }
+    if (sub2) return { type: "book", data: sub2, parent: main2 };
   }
 
-  // ===== NEW: Handle direct service booking =====
-  // e.g. /services/moving-book or /services/cleaning-book
+  // Handle direct service booking: /services/moving-book or /services/cleaning-book
   if (slugArray.length === 2 && slugArray[1].endsWith("-book")) {
-    const mainSlug3 = slugArray[0];
-    const serviceName = slugArray[1].replace("-book", "");
-    
     const main3 = links.find(
-      (item) => item.href.replace(/\/$/, "") === `/services/${mainSlug3}`
+      (item) => item.href.replace(/\/$/, "") === `/services/${slugArray[0]}`
     );
-    
+    const serviceName = slugArray[1].replace("-book", "");
+
     if (main3) {
-      // Find matching sub-service
       const sub3 = main3.subServices?.find(
         (s) => s.name.toLowerCase().replace(/\s+/g, "-") === serviceName.toLowerCase()
       );
-      
-      if (sub3) {
-        return { type: "book", data: sub3, parent: main3 };
-      }
-      
+      if (sub3) return { type: "book", data: sub3, parent: main3 };
+
       // If no exact sub-service match, use main service
       return { type: "book", data: main3, parent: null };
     }
@@ -73,7 +59,6 @@ function findServiceBySlug(links, slugParam) {
 }
 
 export default function ServicePage({ params }) {
-  // Note: params is provided by Next.js (no need to await)
   const { slug } = params;
   const service = findServiceBySlug(servicesLinks, slug);
 
@@ -90,6 +75,7 @@ export default function ServicePage({ params }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* All services page */}
       {service.type === "mainPage" && (
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">All Services</h1>
@@ -100,9 +86,7 @@ export default function ServicePage({ params }) {
                 <p className="text-gray-600 mb-4">{serviceItem.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {serviceItem.subServices?.slice(0, 3).map((sub) => (
-                    <span key={sub.name} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                      {sub.name}
-                    </span>
+                    <span key={sub.name} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{sub.name}</span>
                   ))}
                   {serviceItem.subServices && serviceItem.subServices.length > 3 && (
                     <span className="text-gray-500 text-xs">+{serviceItem.subServices.length - 3} more</span>
@@ -114,41 +98,33 @@ export default function ServicePage({ params }) {
         </div>
       )}
 
+      {/* Main service page */}
       {service.type === "main" && (
         <MainCategoryLayout service={service.data} />
       )}
 
+      {/* Sub-service page */}
       {service.type === "sub" && (
         <SubServiceLayout subService={service.data} parent={service.parent} />
       )}
 
+      {/* Book page */}
       {service.type === "book" && (
         <div>
-          {/* Service Header */}
           <div className="bg-white border-b">
             <div className="container mx-auto px-4 py-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">
-                    Book {service.data.name}
-                  </h1>
-                  {service.parent && (
-                    <p className="text-gray-600 mt-1">
-                      Category: {service.parent.name}
-                    </p>
-                  )}
+                  <h1 className="text-2xl font-bold text-gray-800">Book {service.data.name}</h1>
+                  {service.parent && <p className="text-gray-600 mt-1">Category: {service.parent.name}</p>}
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-500">Quick Booking</p>
-                  <p className="text-lg font-semibold text-green-600">
-                    Available Taskers Ready
-                  </p>
+                  <p className="text-lg font-semibold text-green-600">Available Taskers Ready</p>
                 </div>
               </div>
             </div>
           </div>
-          
-          {/* BookNow Component with service prop */}
           <BookNow serviceData={service.data} />
         </div>
       )}
