@@ -1,8 +1,8 @@
-'use client';
-import { useParams } from 'next/navigation';
-import { useEffect, useMemo, useState, useRef } from 'react';
-import TaskerMap from './Taskermap';
-import LocationInput from '@/app/components/googleInput';
+"use client";
+import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState, useRef } from "react";
+import TaskerMap from "./Taskermap";
+import LocationInput from "@/app/components/googleInput";
 
 // AutocompleteInput (Google Places)
 function AutocompleteInput({
@@ -19,7 +19,7 @@ function AutocompleteInput({
     const initializeAutocomplete = async () => {
       try {
         if (!window.google) {
-          const script = document.createElement('script');
+          const script = document.createElement("script");
           script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}&libraries=places`;
           script.async = true;
           script.defer = true;
@@ -35,19 +35,19 @@ function AutocompleteInput({
           autocompleteRef.current = new window.google.maps.places.Autocomplete(
             inputRef.current,
             {
-              types: ['address'],
+              types: ["address"],
               // componentRestrictions: { country: "us" },
-              fields: ['formatted_address', 'address_components', 'geometry'],
+              fields: ["formatted_address", "address_components", "geometry"],
             }
           );
 
-          autocompleteRef.current.addListener('place_changed', () => {
+          autocompleteRef.current.addListener("place_changed", () => {
             const place = autocompleteRef.current.getPlace();
             if (place && place.formatted_address) onSelect(place);
           });
         }
       } catch (error) {
-        console.error('Error loading Google Places:', error);
+        console.error("Error loading Google Places:", error);
       }
     };
 
@@ -70,7 +70,7 @@ function AutocompleteInput({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       className={`w-full text-black placeholder-gray-400 rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-        className || ''
+        className || ""
       }`}
     />
   );
@@ -78,9 +78,9 @@ function AutocompleteInput({
 
 // Booking modal
 function BookingPopup({ tasker, onClose }) {
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [card, setCard] = useState('');
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [card, setCard] = useState("");
   const [processing, setProcessing] = useState(false);
 
   if (!tasker) return null;
@@ -89,7 +89,7 @@ function BookingPopup({ tasker, onClose }) {
     e.preventDefault();
     setProcessing(true);
     setTimeout(() => {
-      alert(`✅ Booking confirmed with ${tasker.firstName || 'Tasker'}!`);
+      alert(`✅ Booking confirmed with ${tasker.firstName || "Tasker"}!`);
       setProcessing(false);
       onClose();
     }, 1200);
@@ -100,7 +100,7 @@ function BookingPopup({ tasker, onClose }) {
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold">
-            Book {tasker.firstName || 'Tasker'}
+            Book {tasker.firstName || "Tasker"}
           </h3>
           <button onClick={onClose} className="text-gray-500 hover:text-black">
             ✕
@@ -150,7 +150,7 @@ function BookingPopup({ tasker, onClose }) {
             disabled={processing}
             className="w-full rounded-full bg-black px-4 py-2 text-white disabled:opacity-60"
           >
-            {processing ? 'Processing...' : 'Confirm & Pay'}
+            {processing ? "Processing..." : "Confirm & Pay"}
           </button>
         </form>
       </div>
@@ -160,163 +160,120 @@ function BookingPopup({ tasker, onClose }) {
 
 // Tasker card — improved responsive design
 function TaskerCard({ u, onSelect }) {
-  const hourlyRate = u.hourlyRate || 45.0;
   const ratingValue = u.rating || 5.0;
-  const reviewCount = u.reviewsCount || 2;
+  const reviewCount = u.reviewsCount || 0;
 
-  const taskStats = {
-    primaryTasks: 1263,
-    primaryTaskType: 'Furniture Assembly',
-    totalTasks: 1642,
-    overallTaskType: 'Assembly',
-  };
-
-  const sampleReview = {
-    clientName: 'pamela s.',
-    date: 'Fri, Oct 17',
-    comment: 'Great service, communication, and attention to detail.',
-  };
+  const about = u.about || u.bio || "No description provided.";
+  const shortAbout = about.length > 250 ? about.slice(0, 250) + "…" : about;
 
   return (
-    <article className="w-full rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition">
-      <div className="flex flex-col gap-4 md:flex-row md:items-start">
-        <div className="flex-shrink-0">
-          <div className="relative">
-            <img
-              src={
-                u.profileImage ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  (u.firstName || '') + ' ' + (u.lastName || '')
-                )}`
-              }
-              alt={`${u.firstName || ''} ${u.lastName || ''}`}
-              className="h-28 w-28 rounded-full object-cover border-2 border-gray-100"
-            />
+    <article className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-all">
 
-            {u.isVerified && (
-              <span className="absolute -bottom-1 right-0 inline-flex items-center gap-1 rounded-full bg-green-600 px-2 py-1 text-xs font-semibold text-white shadow">
-                ✓ Verified
-              </span>
-            )}
+      <div className="flex gap-5">
+
+        {/* LEFT — PROFILE PHOTO */}
+        <div className="flex-shrink-0 text-center">
+          <img
+            src={
+              u.profileImage ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                (u.firstName || "") + " " + (u.lastName || "")
+              )}&background=fff&color=555`
+            }
+            alt={u.firstName}
+            className="h-28 w-28 rounded-full object-cover border"
+          />
+
+          {/* Rating */}
+          <div className="mt-2 text-sm text-gray-700 font-medium">
+            ⭐ {ratingValue.toFixed(1)}{" "}
+            <span className="text-xs text-gray-500">({reviewCount} reviews)</span>
           </div>
         </div>
 
+        {/* RIGHT SECTION */}
         <div className="flex-1">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h4 className="text-xl font-bold text-black">
-                {(u.firstName || '') + ' ' + (u.lastName || '')}
-              </h4>
 
-              <div className="mt-2 flex items-center gap-3 text-sm text-gray-600">
-                <span className="inline-flex items-center gap-1 font-semibold text-yellow-500">
-                  ✰ <span className="text-black">{ratingValue.toFixed(1)}</span>
-                </span>
-                <span className="text-gray-400">·</span>
-                <span>{reviewCount} reviews</span>
-              </div>
+          {/* NAME + PRICE */}
+          <div className="flex justify-between items-start">
+            <h3 className="text-xl font-bold text-gray-900">
+              {(u.firstName || "") + " " + (u.lastName || "")}
+            </h3>
 
-              <p className="mt-3 text-sm text-gray-600">
-                {u.bio ||
-                  'Reliable, professional, and detail-oriented. I finish work on time and ensure customer satisfaction.'}
-              </p>
+            <div className="text-right text-lg font-bold text-gray-900">
+              {u.hourlyRate ? `$${u.hourlyRate}/hr` : "$0/hr"}
+            </div>
+          </div>
+
+          {/* How I can help */}
+          <div className="mt-4 bg-gray-50 border border-gray-200 p-4 rounded-lg">
+            <div className="text-gray-900 font-semibold mb-2">
+              How I can help:
             </div>
 
-            <div className="flex-shrink-0 text-right">
-              <div className="text-lg font-bold">
-                ${hourlyRate.toFixed(2)}/hr
-              </div>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {shortAbout}
+            </p>
+
+            {shortAbout !== about && (
               <button
-                onClick={() => onSelect(u)}
-                className="mt-4 w-full rounded-full bg-black px-4 py-2 text-sm text-white"
+                onClick={() => alert(about)}
+                className="mt-2 text-sm font-semibold text-green-600"
               >
-                Select & Continue
+                Read More
               </button>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-gray-500">
-            <div className="rounded-md bg-gray-50 p-2">
-              {taskStats.primaryTasks} {taskStats.primaryTaskType}
-            </div>
-            <div className="rounded-md bg-gray-50 p-2">
-              {taskStats.totalTasks} {taskStats.overallTaskType} overall
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <div className="mb-2 flex flex-wrap gap-2">
-              {Array.isArray(u.skills) && u.skills.length > 0 ? (
-                u.skills.slice(0, 6).map((s, i) => (
-                  <span
-                    key={i}
-                    className="whitespace-nowrap rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700"
-                  >
-                    {typeof s === 'string' ? s : s.name}
-                  </span>
-                ))
-              ) : (
-                <span className="text-sm text-gray-400">No skills listed</span>
-              )}
-            </div>
-
-            {u.availabilityTiming && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-                  Starts:{' '}
-                  {u.availabilityTiming.startWork === 'in_one_week'
-                    ? 'In 1 Week'
-                    : u.availabilityTiming.startWork}
-                </span>
-                {u.availabilityTiming.preferredTime?.map((t, i) => (
-                  <span
-                    key={i}
-                    className="rounded-full bg-green-50 px-3 py-1 text-xs text-green-700"
-                  >
-                    {t}
-                  </span>
-                ))}
-                {u.availabilityTiming.availableDays
-                  ?.slice(0, 3)
-                  .map((d, idx) => (
-                    <span
-                      key={idx}
-                      className="rounded-full bg-purple-50 px-3 py-1 text-xs text-purple-700"
-                    >
-                      {d.slice(0, 3)}
-                    </span>
-                  ))}
-              </div>
             )}
           </div>
+
+          {/* About Section (as shown in screenshot layout) */}
+          <div className="mt-4">
+            <div className="font-bold text-gray-900">About:</div>
+            <div className="text-sm text-gray-700 mt-1">
+              {u.about || "—"}
+            </div>
+          </div>
+
+          {/* Contact Section */}
+          <div className="mt-4">
+            <div className="font-bold text-gray-900">Contact:</div>
+
+            <div className="text-sm text-gray-700 mt-1">
+              {u.email && <div>Email: {u.email}</div>}
+              {u.phone && <div>Phone: {u.phone}</div>}
+              {!u.email && !u.phone && "—"}
+            </div>
+          </div>
+
         </div>
       </div>
     </article>
   );
 }
 
+
+
 // Filters Sidebar — improved styling + sticky on large screens
 function FiltersSidebar({ serviceName, taskerCount, filters, onFilterChange }) {
   const timeSlots = [
-    { value: 'morning', label: 'Morning (8am - 12pm)' },
-    { value: 'afternoon', label: 'Afternoon (12pm - 5pm)' },
-    { value: 'evening', label: 'Evening (5pm - 9:30pm)' },
+    { value: "morning", label: "Morning (8am - 12pm)" },
+    { value: "afternoon", label: "Afternoon (12pm - 5pm)" },
+    { value: "evening", label: "Evening (5pm - 9:30pm)" },
   ];
 
   const daysOfWeek = [
-    { value: 'monday', label: 'Mon' },
-    { value: 'tuesday', label: 'Tue' },
-    { value: 'wednesday', label: 'Wed' },
-    { value: 'thursday', label: 'Thu' },
-    { value: 'friday', label: 'Fri' },
-    { value: 'saturday', label: 'Sat' },
-    { value: 'sunday', label: 'Sun' },
+    { value: "monday", label: "Mon" },
+    { value: "tuesday", label: "Tue" },
+    { value: "wednesday", label: "Wed" },
+    { value: "thursday", label: "Thu" },
+    { value: "friday", label: "Fri" },
+    { value: "saturday", label: "Sat" },
+    { value: "sunday", label: "Sun" },
   ];
 
   const startWorkOptions = [
-    { value: 'today', label: 'Today' },
-    { value: 'tomorrow', label: 'Tomorrow' },
-    { value: 'in_one_week', label: 'Within a Week' },
+    { value: "today", label: "Today" },
+    { value: "tomorrow", label: "Tomorrow" },
+    { value: "in_one_week", label: "Within a Week" },
   ];
 
   return (
@@ -339,7 +296,7 @@ function FiltersSidebar({ serviceName, taskerCount, filters, onFilterChange }) {
                   type="radio"
                   name="startWork"
                   checked={filters.startWork === o.value}
-                  onChange={() => onFilterChange('startWork', o.value)}
+                  onChange={() => onFilterChange("startWork", o.value)}
                   className="h-4 w-4"
                 />
                 <span>{o.label}</span>
@@ -358,13 +315,13 @@ function FiltersSidebar({ serviceName, taskerCount, filters, onFilterChange }) {
                   checked={filters.preferredTime.includes(t.value)}
                   onChange={(e) => {
                     if (e.target.checked)
-                      onFilterChange('preferredTime', [
+                      onFilterChange("preferredTime", [
                         ...filters.preferredTime,
                         t.value,
                       ]);
                     else
                       onFilterChange(
-                        'preferredTime',
+                        "preferredTime",
                         filters.preferredTime.filter((x) => x !== t.value)
                       );
                   }}
@@ -386,13 +343,13 @@ function FiltersSidebar({ serviceName, taskerCount, filters, onFilterChange }) {
                   checked={filters.availableDays.includes(d.value)}
                   onChange={(e) => {
                     if (e.target.checked)
-                      onFilterChange('availableDays', [
+                      onFilterChange("availableDays", [
                         ...filters.availableDays,
                         d.value,
                       ]);
                     else
                       onFilterChange(
-                        'availableDays',
+                        "availableDays",
                         filters.availableDays.filter((x) => x !== d.value)
                       );
                   }}
@@ -419,7 +376,7 @@ function FiltersSidebar({ serviceName, taskerCount, filters, onFilterChange }) {
             filters.preferredTime.length > 0 ||
             filters.availableDays.length > 0) && (
             <button
-              onClick={() => onFilterChange('clear', null)}
+              onClick={() => onFilterChange("clear", null)}
               className="w-full rounded-full border border-red-100 px-3 py-2 text-sm text-red-600"
             >
               Clear Filters
@@ -428,7 +385,7 @@ function FiltersSidebar({ serviceName, taskerCount, filters, onFilterChange }) {
         </div>
 
         <p className="mt-4 text-xs text-gray-400">
-          All Taskers undergo ID and background checks.{' '}
+          All Taskers undergo ID and background checks.{" "}
           <span className="underline">Learn more</span>
         </p>
       </div>
@@ -439,20 +396,20 @@ function FiltersSidebar({ serviceName, taskerCount, filters, onFilterChange }) {
 export default function BookNow() {
   const { slug } = useParams();
   const slugArray = Array.isArray(slug) ? slug : slug ? [slug] : [];
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
 
   const getServiceName = () => {
-    if (slugArray.length === 0) return 'General Service';
+    if (slugArray.length === 0) return "General Service";
     const lastSegment = slugArray[slugArray.length - 1];
-    if (lastSegment === 'book' && slugArray.length >= 2) {
+    if (lastSegment === "book" && slugArray.length >= 2) {
       return decodeURIComponent(
-        slugArray[slugArray.length - 2].replace(/-/g, ' ')
+        slugArray[slugArray.length - 2].replace(/-/g, " ")
       );
-    } else if (lastSegment.endsWith('-book')) {
+    } else if (lastSegment.endsWith("-book")) {
       return decodeURIComponent(
-        lastSegment.replace('-book', '').replace(/-/g, ' ')
+        lastSegment.replace("-book", "").replace(/-/g, " ")
       );
-    } else return decodeURIComponent(lastSegment.replace(/-/g, ' '));
+    } else return decodeURIComponent(lastSegment.replace(/-/g, " "));
   };
 
   const serviceName = getServiceName();
@@ -460,26 +417,26 @@ export default function BookNow() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     service: serviceName,
-    location: '',
-    unit: '',
-    taskSize: '',
-    vehicle: '',
-    details: '',
+    location: "",
+    unit: "",
+    taskSize: "",
+    vehicle: "",
+    details: "",
     locationGeometry: null,
   });
   const [filters, setFilters] = useState({
-    startWork: '',
+    startWork: "",
     preferredTime: [],
     availableDays: [],
   });
-  console.log('form', form);
+  console.log("form", form);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleFilterChange = (filterType, value) => {
-    if (filterType === 'clear') {
-      setFilters({ startWork: '', preferredTime: [], availableDays: [] });
+    if (filterType === "clear") {
+      setFilters({ startWork: "", preferredTime: [], availableDays: [] });
     } else setFilters((prev) => ({ ...prev, [filterType]: value }));
   };
 
@@ -509,7 +466,7 @@ export default function BookNow() {
 
   const [loading, setLoading] = useState(false);
   const [usersData, setUsersData] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [selectedTasker, setSelectedTasker] = useState(null);
 
   useEffect(() => {
@@ -518,17 +475,17 @@ export default function BookNow() {
     (async () => {
       try {
         setLoading(true);
-        setError('');
+        setError("");
         // const res = await fetch('/api/users', { cache: 'no-store' });
         // const res = await fetch('/api/find-tasks', { cache: 'no-store' });
         if (form?.locationGeometry?.lat && form?.locationGeometry?.lng) {
-          const res = await fetch('/api/get-taskers', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          const res = await fetch("/api/get-taskers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               lat: parseFloat(form.locationGeometry?.lat),
               lng: parseFloat(form.locationGeometry?.lng),
-              title: form?.service || '',
+              title: form?.service || "",
             }),
           });
 
@@ -538,7 +495,7 @@ export default function BookNow() {
           if (mounted) setUsersData(data);
         }
       } catch (err) {
-        if (mounted) setError('Failed to load taskers.');
+        if (mounted) setError("Failed to load taskers.");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -550,13 +507,13 @@ export default function BookNow() {
 
   const visibleUsers = useMemo(() => {
     const list = usersData?.users || [];
-    if (serviceName === 'General Service' || serviceName === 'Service')
+    if (serviceName === "General Service" || serviceName === "Service")
       return list;
     let filtered = list.filter((tasker) => {
       if (!tasker.skills || tasker.skills.length === 0) return false;
       const hasService = tasker.skills.some((skill) => {
         const skillName =
-          typeof skill === 'string'
+          typeof skill === "string"
             ? skill.toLowerCase()
             : skill.name?.toLowerCase();
         const currentService = serviceName.toLowerCase();
@@ -564,7 +521,7 @@ export default function BookNow() {
           skillName === currentService ||
           skillName.includes(currentService) ||
           currentService.includes(skillName) ||
-          skillName.replace(/\s+/g, '') === currentService.replace(/\s+/g, '')
+          skillName.replace(/\s+/g, "") === currentService.replace(/\s+/g, "")
         );
       });
       return hasService;
@@ -601,14 +558,14 @@ export default function BookNow() {
   }, [usersData, serviceName, filters]);
 
   return (
-    <div className="w-full px-4 md:px-10 pb-12">
-      <div className="mx-auto max-w-[1400px] pt-8">
+  <div className="w-full flex justify-center px-4 md:px-10 pb-12">
+  <div className="w-full max-w-[1400px] pt-8">
         <header className="mb-6">
           <h1 className="text-2xl font-extrabold">Book {serviceName}</h1>
           <p className="mt-2 text-sm text-gray-600">
-            {serviceName !== 'General Service' && serviceName !== 'Service'
+            {serviceName !== "General Service" && serviceName !== "Service"
               ? `Available taskers for ${serviceName}`
-              : 'Browse all available taskers'}
+              : "Browse all available taskers"}
           </p>
         </header>
 
@@ -677,14 +634,14 @@ export default function BookNow() {
                         if (form.locationGeometry) setStep(4);
                         else
                           alert(
-                            'Please select a valid address from the Google dropdown results.'
+                            "Please select a valid address from the Google dropdown results."
                           );
                       }}
                       disabled={!form.locationGeometry}
                       className={`rounded-full px-6 py-2 font-semibold ${
                         form.locationGeometry
-                          ? 'bg-black text-white'
-                          : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                          ? "bg-black text-white"
+                          : "bg-gray-300 text-gray-600 cursor-not-allowed"
                       }`}
                     >
                       See Taskers & Prices
@@ -696,7 +653,7 @@ export default function BookNow() {
               {step > 1 && (
                 <p className="mt-2 text-sm text-gray-600">
                   {form.location}
-                  {form.unit ? `, ${form.unit}` : ''}
+                  {form.unit ? `, ${form.unit}` : ""}
                 </p>
               )}
             </div>
@@ -720,70 +677,34 @@ export default function BookNow() {
             </div>
 
             {/* LEFT: filters + profiles  |  RIGHT: map */}
-            <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)]">
-              {/* LEFT COLUMN */}
-              <div className="space-y-4">
-                {/* <FiltersSidebar
-          serviceName={serviceName}
-          taskerCount={visibleUsers.length}
-          filters={filters}
-          onFilterChange={handleFilterChange}
-        /> */}
+          <div className="mt-8 flex flex-col gap-6">
 
-                <main>
-                  {loading && (
-                    <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center">
-                      Loading taskers…
-                    </div>
-                  )}
+  {/* ALL TASKER CARDS FULL-WIDTH */}
+  <div className="flex flex-col gap-6">
+    {loading && (
+      <div className="rounded-2xl border bg-white p-8 text-center">
+        Loading taskers…
+      </div>
+    )}
 
-                  {error && (
-                    <div className="rounded-2xl border border-red-100 bg-red-50 p-4 text-red-700">
-                      {error}
-                    </div>
-                  )}
+    {!loading && visibleUsers.length === 0 && (
+      <div className="rounded-2xl border bg-white p-8 text-center">
+        No taskers found near your location
+      </div>
+    )}
 
-                  {!loading && !error && (
-                    <>
-                      {visibleUsers.length === 0 ? (
-                        <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center">
-                          <p className="text-gray-500">
-                            No taskers found for <strong>{serviceName}</strong>
-                            {filters.startWork ||
-                            filters.preferredTime.length > 0 ||
-                            filters.availableDays.length > 0
-                              ? ' with the current filters.'
-                              : '.'}
-                          </p>
-                          <p className="mt-2 text-sm text-gray-400">
-                            Try adjusting your filters or select a different
-                            service.
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="space-y-6">
-                          {visibleUsers.map((u) => (
-                            <TaskerCard
-                              key={u._id || u.id}
-                              u={u}
-                              onSelect={setSelectedTasker}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </main>
-              </div>
+    {!loading &&
+      visibleUsers.map((u) => (
+        <TaskerCard key={u._id || u.id} u={u} onSelect={setSelectedTasker} />
+      ))}
+  </div>
 
-              {/* RIGHT COLUMN – MAP */}
-              <div className=" min-h-[520px] h-full rounded-2xl border border-gray-100 bg-gray-50 overflow-hidden lg:sticky lg:top-24">
-                <TaskerMap
-                  taskers={visibleUsers}
-                  centerLocation={form.locationGeometry}
-                />
-              </div>
-            </div>
+  {/* MAP BELOW CARDS */}
+  <div className="w-full h-[500px] rounded-2xl border overflow-hidden">
+    <TaskerMap taskers={visibleUsers} centerLocation={form.locationGeometry} />
+  </div>
+</div>
+
           </section>
         )}
 
