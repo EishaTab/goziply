@@ -107,6 +107,7 @@ export default function ServicePage({ params }) {
       {service.type === "sub" && (
         <SubServiceLayout subService={service.data} parent={service.parent} />
       )}
+      {console.log('service.type',service.type)}
 
       {/* Book page */}
       {service.type === "book" && (

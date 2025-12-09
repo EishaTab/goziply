@@ -51,7 +51,7 @@ export async function POST(req) {
       filters.skills = { $in: services };
     }
 
-    const MAX_DISTANCE_METERS = 15000; // 15 km
+    const MAX_DISTANCE_METERS = 50000; // 15 km
     const EARTH_RADIUS_METERS = 6371000;
     
     const users = await User.aggregate([

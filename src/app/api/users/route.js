@@ -10,7 +10,7 @@ export async function GET() {
   // In naye fields ko 'select' query mein shamil kiya gaya hai:
   // 'profileImage', 'skills', 'bio', 'hourlyRate', 'rating', 'reviewsCount'
   const fieldsToSelect = 
-    "firstName lastName email city phone isVerified createdAt profileImage skills bio hourlyRate rating reviewsCount";
+    "firstName lastName email city phone isVerified createdAt profileImage skills bio hourlyRate rating reviewsCount location";
     
   const users = await User.find()
     // SAARE ZAROORI FIELDS SELECT KARNA:

@@ -165,29 +165,30 @@ export async function PUT(req) {
         fullContact: `${user.countryCode}${user.phone}`
       });
     }
-
+    console.log("skills", body.skills)
+// user.skills = body.skills;
     // --- 🛠️ Skills Update ---
-    if (body.skills !== undefined) {
-      if (Array.isArray(body.skills)) {
-        // Normalize skills to strings
-        const normalizedSkills = body.skills
-          .map(skill => {
-            if (typeof skill === 'string') {
-              return skill.trim();
-            } else if (skill && typeof skill === 'object' && skill.name) {
-              return skill.name.trim();
-            }
-            return null;
-          })
-          .filter(skill => skill && skill.length > 0); // Remove empty values
+    // if (body.skills !== undefined) {
+    //   if (Array.isArray(body.skills)) {
+    //     // Normalize skills to strings
+    //     const normalizedSkills = body.skills
+    //       .map(skill => {
+    //         if (skill) {
+    //           console.log('skill',skill)
+    //           return {
+    //             name:skill.name,
+    //             rate:+skill.rate
+    //           }
+    //         }
+    //       })
         
-        user.skills = normalizedSkills;
-        console.log("✅ Normalized skills:", normalizedSkills);
-      } else {
-        user.skills = [];
-      }
-    }
-
+    //     user.skills = normalizedSkills;
+    //     console.log("✅ Normalized skills:", normalizedSkills);
+    //   } else {
+    //     user.skills = [];
+    //   }
+    // }
+user.skills= body.skills
     // --- 🧠 Username Uniqueness Check ---
     if (body.username && body.username !== user.username) {
       const existingUser = await User.findOne({ 
@@ -223,7 +224,7 @@ export async function PUT(req) {
           "💰 Calculated hourly rate:",
           total,
           "for skills:",
-          skillNames,
+          // skillNames,
           "in city:",
           user.city
         );
@@ -272,7 +273,7 @@ export async function PUT(req) {
 
     // Update timestamps
     user.updatedAt = new Date();
-
+    console.log("user.skills",user)
     await user.save();
 
     console.log("✅ User after save:", { 

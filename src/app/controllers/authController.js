@@ -62,7 +62,8 @@ export async function signupUser(data) {
       firstName: data.firstName,
       lastName: data.lastName, 
       email: data.email,
-      password: '***' 
+      password: '***' ,
+      location: data.location
     });
 
     // ✅ Database connection
@@ -80,9 +81,9 @@ export async function signupUser(data) {
       console.log('❌ Validation failed:', v.issues);
       return jsonErr('Validation failed', 422, v.issues);
     }
-    console.log('✅ Validation passed');
+    console.log('✅ Validation passed'), v;
 
-    const { firstName, lastName, email, countryCode, phone, password, zipCode } = v.value;
+    const { firstName, lastName, email, countryCode, phone, password, zipCode, location } = v.value;
 
     // ✅ Check existing user
     const existing = await User.findOne({ email });
@@ -138,13 +139,17 @@ export async function signupUser(data) {
         username: username.trim(),
         countryCode: countryCode.trim(),
         phone: phone.replace(/\D/g, '').trim(),
-        zipCode: zipCode.trim(),
+        // zipCode: zipCode.trim(),
         password: hashedPassword,
         role: role, // ✅ ALWAYS "tasker"
         isVerified: isVerified, // ✅ INITIALLY FALSE - VERIFICATION REQUIRED
         isApproved: false, // ✅ ADMIN APPROVAL PENDING
         otp: otp, // ✅ OTP FOR VERIFICATION
         otpExpiresAt: otpExpiresAt, // ✅ OTP EXPIRY
+        location:data?.location,
+        city:data?.location?.city || '',
+        zipCode:data?.location?.zipCode ||  zipCode.trim(),
+
       };
 
       console.log('📝 TASKER data to save:', { 

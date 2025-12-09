@@ -1,5 +1,59 @@
 import mongoose from "mongoose";
-
+// ✅ Location sub-schema (no own _id)
+// Skill sub-schema
+const skillSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    rate: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0,
+    },
+  },
+  { _id: false }
+);
+const locationSchema = new mongoose.Schema(
+  {
+    lat: {
+      type: Number,
+      required: [true, "Latitude is required"],
+      min: [-90, "Latitude must be greater than or equal to -90"],
+      max: [90, "Latitude must be less than or equal to 90"],
+    },
+    lng: {
+      type: Number,
+      required: [true, "Longitude is required"],
+      min: [-180, "Longitude must be greater than or equal to -180"],
+      max: [180, "Longitude must be less than or equal to 180"],
+    },
+    fullAddress: {
+      type: String,
+      trim: true,
+    },
+    city: {
+      type: String,
+      trim: true,
+    },
+    state: {
+      type: String,
+      trim: true,
+    },
+    country: {
+      type: String,
+      trim: true,
+    },
+    zipCode: {
+      type: String,
+      trim: true,
+    },
+  },
+  { _id: false }
+);
 const userSchema = new mongoose.Schema(
   {
     // 👤 Basic Info
@@ -28,9 +82,9 @@ const userSchema = new mongoose.Schema(
       trim: true
     },
     fullAddress: { type: String, trim: true, default: "" },
-    skills: { 
-      type: [{ type: String, trim: true }], 
-      default: []
+    skills: {
+      type: [skillSchema],
+      default: [],
     },
     availability: { type: Boolean, default: true },
     bio: { 
@@ -100,7 +154,11 @@ const userSchema = new mongoose.Schema(
     },
 
     approvedAt: { type: Date },
-    approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+    approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    location:{
+      type:locationSchema,
+    }
+
   },
   { timestamps: true }
 );

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Edit,
   Save,
@@ -15,15 +15,16 @@ import {
   Watch,
   Mail,
   Phone,
-} from "lucide-react";
-import { useSession } from "next-auth/react";
-import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
-import "react-image-crop/dist/ReactCrop.css";
-import imageCompression from "browser-image-compression";
-import { motion, AnimatePresence } from "framer-motion";
-import { cities } from "../../data/rates"; // ✅ NEW: Cities array
-import { services } from "../../data/rates"; // ✅ NEW: Services array
-import { rates } from "../../data/rates"; // ✅ NEW: Rates with new structure
+} from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
+import imageCompression from 'browser-image-compression';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cities } from '../../data/rates'; // ✅ NEW: Cities array
+// import { services } from "../../data/rates"; // ✅ NEW: Services array
+import { rates } from '../../data/rates'; // ✅ NEW: Rates with new structure
+import ServicesData from '@/app/data/ServicesLinks';
 
 export default function ProfileDetails() {
   const { data: session } = useSession();
@@ -33,8 +34,8 @@ export default function ProfileDetails() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const [selectedCity, setSelectedCity] = useState("");
-  const [selectedSkill, setSelectedSkill] = useState("");
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedSkill, setSelectedSkill] = useState('');
   const [currentRate, setCurrentRate] = useState(null);
   const [availableSkills, setAvailableSkills] = useState([]);
 
@@ -42,49 +43,67 @@ export default function ProfileDetails() {
   const [upImg, setUpImg] = useState(null);
   const [crop, setCrop] = useState();
   const [completedCrop, setCompletedCrop] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState("");
+  const [previewUrl, setPreviewUrl] = useState('');
   const imgRef = useRef(null);
 
   // ID image states
   const [idUpImg, setIdUpImg] = useState(null);
   const [idCrop, setIdCrop] = useState();
   const [idCompletedCrop, setIdCompletedCrop] = useState(null);
-  const [idPreviewUrl, setIdPreviewUrl] = useState("");
+  const [idPreviewUrl, setIdPreviewUrl] = useState('');
   const idImgRef = useRef(null);
 
   // Helper: enrich data
+  // Helper: enrich data
   const enrichProfileData = useCallback((userData) => {
     const cityData = rates.find((r) => r.city === userData.city);
-    
-    const skillsWithRates = userData.skills?.map((skillName) => {
-      const skillRate = cityData?.services[skillName] || 0;
-      return {
-        name: skillName,
-        rate: skillRate,
-      };
-    }) || [];
-    
+
+    const skillsWithRates =
+      userData?.skills?.map((skill) => {
+        // 🧩 Case 1: purana data (array of strings)
+        if (typeof skill === 'string') {
+          const skillRate = cityData?.services?.[skill] || 0;
+          return {
+            name: skill,
+            rate: skillRate,
+          };
+        }
+
+        // 🧩 Case 2: naya data (array of objects)
+        if (skill && typeof skill === 'object') {
+          const skillName = skill.name || skill.skillName;
+          const skillRate =
+            typeof skill.rate === 'number'
+              ? skill.rate
+              : cityData?.services?.[skillName] || 0;
+
+          return {
+            name: skillName,
+            rate: skillRate,
+          };
+        }
+
+        return null;
+      }) || [];
+
     return {
       ...userData,
-      skills: skillsWithRates,
-      bio: userData.bio || "",
-      profileImage: userData.profileImage || "/d_avatar.png",
+      skills: skillsWithRates.filter(Boolean),
+      bio: userData.bio || '',
+      profileImage: userData.profileImage || '/d_avatar.png',
       identityVerification: userData.identityVerification || {},
-      // Add email and contact number
-      email: userData.email || "",
-      contactNumber: userData.contactNumber || "",
-      // Add availability timing with defaults
+      email: userData.email || '',
+      contactNumber: userData.contactNumber || '',
       availabilityTiming: userData.availabilityTiming || {
-        startWork: "today",
-        preferredTime: ["morning", "afternoon", "evening"],
-        availableDays: ["monday", "tuesday", "wednesday", "thursday", "friday"]
+        startWork: 'today',
+        preferredTime: ['morning', 'afternoon', 'evening'],
+        availableDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
       },
-      // Add working hours with defaults
       workingHours: userData.workingHours || {
         hoursPerDay: 8,
         daysPerWeek: 5,
-        totalHoursPerWeek: 40
-      }
+        totalHoursPerWeek: 40,
+      },
     };
   }, []);
 
@@ -92,14 +111,14 @@ export default function ProfileDetails() {
   useEffect(() => {
     async function loadProfile() {
       try {
-        const res = await fetch("/api/dashboard/profile");
+        const res = await fetch('/api/dashboard/profile');
         const data = await res.json();
-        console.log("🔍 Loaded profile data:", data);
+        console.log('🔍 Loaded profile data:', data);
         const enriched = enrichProfileData(data.user);
         setProfile(enriched);
         setOriginalProfile(enriched);
-        setSelectedCity(data.user.city || "");
-        
+        setSelectedCity(data.user.city || '');
+
         // Set previews if exist
         if (data.user.profileImage) {
           setPreviewUrl(data.user.profileImage);
@@ -108,63 +127,53 @@ export default function ProfileDetails() {
           setIdPreviewUrl(data.user.identityVerification.idImageFront);
         }
       } catch (err) {
-        console.error("Error loading profile:", err);
+        console.error('Error loading profile:', err);
       }
     }
     if (session?.user?.id) loadProfile();
   }, [session, enrichProfileData]);
 
   // Update available skills when city changes
+  // Jab city change ho, tab hi skills ke rates aur profile.city update karo
   useEffect(() => {
-    if (selectedCity) {
-      // Get city data from rates
-      const cityData = rates.find((r) => r.city === selectedCity);
-      
-      // Get user's current skills
-      const userSkillNames = profile?.skills.map((s) => s.name) || [];
-      
-      if (cityData) {
-        // Show services that have rates in this city AND user hasn't added yet
-        const availableInCity = Object.keys(cityData.services);
-        const skills = availableInCity.filter(
-          (s) => !userSkillNames.includes(s)
-        );
-        setAvailableSkills(skills);
-        
-        // Update existing skills rates when city changes
-        if (profile && profile.skills.length > 0) {
-          const updatedSkills = profile.skills.map(skill => ({
-            ...skill,
-            rate: cityData.services[skill.name] || 0
-          }));
-          setProfile(prev => ({ ...prev, skills: updatedSkills }));
-        }
-      } else {
-        // If city not in rates, show all services (with rate 0)
-        const skills = services.filter(
-          (s) => !userSkillNames.includes(s)
-        );
-        setAvailableSkills(skills);
-        
-        // Update existing skills rates to 0
-        if (profile && profile.skills.length > 0) {
-          const updatedSkills = profile.skills.map(skill => ({
-            ...skill,
-            rate: 0
-          }));
-          setProfile(prev => ({ ...prev, skills: updatedSkills }));
-        }
-      }
-    } else {
+    if (!profile || !selectedCity) return;
+
+    const cityData = rates.find((r) => r.city === selectedCity);
+
+    setProfile((prev) => ({
+      ...prev,
+      city: selectedCity,
+      skills: (prev.skills || []).map((skill) => ({
+        ...skill,
+        rate: cityData?.services?.[skill.name] || 0,
+      })),
+    }));
+  }, [selectedCity]); // 👈 Yahan se profile hata diya
+
+  useEffect(() => {
+    if (!selectedCity || !profile) {
       setAvailableSkills([]);
       setCurrentRate(null);
+      return;
     }
 
-    // Update profile city
-    if (profile && profile.city !== selectedCity) {
-      setProfile((prev) => ({ ...prev, city: selectedCity }));
+    const cityData = rates.find((r) => r.city === selectedCity);
+    const services = ServicesData.flatMap((service) =>
+      (service.subServices || []).map((sub) => sub.name)
+    );
+
+    const userSkillNames = (profile.skills || []).map((s) => s.name);
+
+    if (cityData) {
+      const availableInCity = Object.keys(cityData.services);
+      const skills = availableInCity.filter((s) => !userSkillNames.includes(s));
+      setAvailableSkills(skills);
+    } else {
+      // Agar city ki rates defined nahi, to saare services dikhao (rate 0)
+      const skills = services.filter((s) => !userSkillNames.includes(s));
+      setAvailableSkills(skills);
     }
-  }, [selectedCity, profile]);
+  }, [selectedCity, profile?.skills]); // 👈 ab sirf skills ka slice observe kar rahe
 
   // Update rate when skill is selected
   useEffect(() => {
@@ -184,7 +193,7 @@ export default function ProfileDetails() {
   const onSelectFile = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const reader = new FileReader();
-      reader.addEventListener("load", () => setUpImg(String(reader.result)));
+      reader.addEventListener('load', () => setUpImg(String(reader.result)));
       reader.readAsDataURL(e.target.files[0]);
     }
   };
@@ -193,7 +202,7 @@ export default function ProfileDetails() {
   const onSelectIdFile = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const reader = new FileReader();
-      reader.addEventListener("load", () => setIdUpImg(String(reader.result)));
+      reader.addEventListener('load', () => setIdUpImg(String(reader.result)));
       reader.readAsDataURL(e.target.files[0]);
     }
   };
@@ -201,7 +210,11 @@ export default function ProfileDetails() {
   const onImageLoad = (e) => {
     const { width, height } = e.currentTarget;
     setCrop(
-      centerCrop(makeAspectCrop({ unit: "%", width: 90 }, 1, width, height), width, height)
+      centerCrop(
+        makeAspectCrop({ unit: '%', width: 90 }, 1, width, height),
+        width,
+        height
+      )
     );
   };
 
@@ -209,18 +222,22 @@ export default function ProfileDetails() {
   const onIdImageLoad = (e) => {
     const { width, height } = e.currentTarget;
     setIdCrop(
-      centerCrop(makeAspectCrop({ unit: "%", width: 90 }, 1, width, height), width, height)
+      centerCrop(
+        makeAspectCrop({ unit: '%', width: 90 }, 1, width, height),
+        width,
+        height
+      )
     );
   };
 
   const generateCroppedImage = async (image, crop, isIdImage = false) => {
     if (!crop?.width || !crop?.height) return;
-    const canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
     canvas.width = crop.width;
     canvas.height = crop.height;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     ctx.drawImage(
       image,
       crop.x * scaleX,
@@ -233,7 +250,7 @@ export default function ProfileDetails() {
       crop.height
     );
     const blob = await new Promise((resolve) =>
-      canvas.toBlob(resolve, "image/jpeg", 0.9)
+      canvas.toBlob(resolve, 'image/jpeg', 0.9)
     );
     const compressedBlob = await imageCompression(blob, {
       maxSizeMB: 0.5,
@@ -251,9 +268,9 @@ export default function ProfileDetails() {
       setIdUpImg(null);
       setProfile((prev) => ({
         ...prev,
-        identityVerification: { 
+        identityVerification: {
           ...prev.identityVerification,
-          idImageFront: base64 
+          idImageFront: base64,
         },
       }));
     } else {
@@ -267,21 +284,21 @@ export default function ProfileDetails() {
   const handleSaveChanges = async () => {
     try {
       setLoading(true);
-      
-      console.log("🔍 FRONTEND - Saving profile:", {
+
+      console.log('🔍 FRONTEND - Saving profile:', {
         profileCity: profile?.city,
         selectedCity: selectedCity,
         skills: profile?.skills,
         email: profile?.email,
         contactNumber: profile?.contactNumber,
         availabilityTiming: profile?.availabilityTiming,
-        workingHours: profile?.workingHours
+        workingHours: profile?.workingHours,
       });
-      
+
       // Prepare payload
       const payload = {
         ...profile,
-        skills: profile.skills.map((s) => s.name),
+        // skills: profile.skills.map((s) => s.name),
         city: profile.city,
         email: profile.email,
         contactNumber: profile.contactNumber,
@@ -289,18 +306,22 @@ export default function ProfileDetails() {
         identityVerification: profile.identityVerification,
         availabilityTiming: profile.availabilityTiming,
         workingHours: profile.workingHours,
+        skills: (profile.skills || []).map((s) => ({
+          name: s.name,
+          rate: s.rate ?? 0,
+        })),
       };
 
-      console.log("🔍 FRONTEND - Sending payload:", payload);
+      console.log('🔍 FRONTEND - Sending payload:', payload);
 
-      const res = await fetch("/api/dashboard/update", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/dashboard/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       const responseData = await res.json();
-      console.log("🔍 FRONTEND - API Response:", responseData);
+      console.log('🔍 FRONTEND - API Response:', responseData);
 
       if (!res.ok) {
         throw new Error(responseData.error || 'Failed to update profile');
@@ -309,12 +330,12 @@ export default function ProfileDetails() {
       const enriched = enrichProfileData(responseData.user);
       setProfile(enriched);
       setOriginalProfile(enriched);
-      setSelectedCity(responseData.user.city || "");
+      setSelectedCity(responseData.user.city || '');
       setIsEditing(false);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 2500);
     } catch (err) {
-      console.error("❌ Save failed:", err);
+      console.error('❌ Save failed:', err);
       alert('Failed to save profile. Please try again.');
     } finally {
       setLoading(false);
@@ -324,29 +345,39 @@ export default function ProfileDetails() {
   const handleCancel = () => {
     setProfile(originalProfile);
     setIsEditing(false);
-    setSelectedCity(originalProfile.city || "");
-    setSelectedSkill("");
-    setPreviewUrl(originalProfile.profileImage || "");
-    setIdPreviewUrl(originalProfile.identityVerification?.idImageFront || "");
+    setSelectedCity(originalProfile.city || '');
+    setSelectedSkill('');
+    setPreviewUrl(originalProfile.profileImage || '');
+    setIdPreviewUrl(originalProfile.identityVerification?.idImageFront || '');
     setUpImg(null);
     setIdUpImg(null);
   };
 
   const handleAddSkill = () => {
-    if (!selectedSkill || !selectedCity || currentRate === null) return;
-    
-    // Check if skill already exists
-    if (profile.skills?.some(s => s.name === selectedSkill)) {
+    if (!selectedSkill || !selectedCity) return;
+
+    if (currentRate === null || Number.isNaN(currentRate)) {
+      alert('Please enter a valid rate for this skill');
+      return;
+    }
+
+    // Duplicate check
+    if (profile.skills?.some((s) => s.name === selectedSkill)) {
       alert('This skill is already added');
       return;
     }
-    
-    const newSkill = { name: selectedSkill, rate: currentRate };
+
+    const newSkill = {
+      name: selectedSkill,
+      rate: currentRate ?? 0,
+    };
+
     setProfile((prev) => ({
       ...prev,
       skills: [...(prev.skills || []), newSkill],
     }));
-    setSelectedSkill("");
+
+    setSelectedSkill('');
     setCurrentRate(null);
   };
 
@@ -361,16 +392,16 @@ export default function ProfileDetails() {
     const currentTimes = profile.availabilityTiming?.preferredTime || [];
     let newTimes;
     if (currentTimes.includes(time)) {
-      newTimes = currentTimes.filter(t => t !== time);
+      newTimes = currentTimes.filter((t) => t !== time);
     } else {
       newTimes = [...currentTimes, time];
     }
-    setProfile(prev => ({
+    setProfile((prev) => ({
       ...prev,
       availabilityTiming: {
         ...prev.availabilityTiming,
-        preferredTime: newTimes
-      }
+        preferredTime: newTimes,
+      },
     }));
   };
 
@@ -378,28 +409,28 @@ export default function ProfileDetails() {
     const currentDays = profile.availabilityTiming?.availableDays || [];
     let newDays;
     if (currentDays.includes(day)) {
-      newDays = currentDays.filter(d => d !== day);
+      newDays = currentDays.filter((d) => d !== day);
     } else {
       newDays = [...currentDays, day];
     }
-    setProfile(prev => ({
+    setProfile((prev) => ({
       ...prev,
       availabilityTiming: {
         ...prev.availabilityTiming,
-        availableDays: newDays
-      }
+        availableDays: newDays,
+      },
     }));
   };
 
   // Working hours handlers
   const handleWorkingHoursChange = (field, value) => {
     const numValue = parseInt(value) || 0;
-    setProfile(prev => ({
+    setProfile((prev) => ({
       ...prev,
       workingHours: {
         ...prev.workingHours,
-        [field]: numValue
-      }
+        [field]: numValue,
+      },
     }));
   };
 
@@ -409,13 +440,13 @@ export default function ProfileDetails() {
       const hoursPerDay = profile.workingHours.hoursPerDay || 0;
       const daysPerWeek = profile.workingHours.daysPerWeek || 0;
       const totalHoursPerWeek = hoursPerDay * daysPerWeek;
-      
-      setProfile(prev => ({
+
+      setProfile((prev) => ({
         ...prev,
         workingHours: {
           ...prev.workingHours,
-          totalHoursPerWeek: totalHoursPerWeek
-        }
+          totalHoursPerWeek: totalHoursPerWeek,
+        },
       }));
     }
   }, [profile?.workingHours?.hoursPerDay, profile?.workingHours?.daysPerWeek]);
@@ -423,7 +454,7 @@ export default function ProfileDetails() {
   // City dropdown handler
   const handleCityChange = (e) => {
     const newCity = e.target.value;
-    console.log("🏙️ City changed to:", newCity);
+    console.log('🏙️ City changed to:', newCity);
     setSelectedCity(newCity);
   };
 
@@ -473,10 +504,10 @@ export default function ProfileDetails() {
               onClick={handleSaveChanges}
               disabled={loading}
               className={`flex items-center gap-2 px-4 py-2 rounded-md text-white bg-slate-800 hover:bg-slate-900 transition ${
-                loading && "opacity-70 cursor-not-allowed"
+                loading && 'opacity-70 cursor-not-allowed'
               }`}
             >
-              <Save size={16} /> {loading ? "Saving..." : "Save"}
+              <Save size={16} /> {loading ? 'Saving...' : 'Save'}
             </button>
           </div>
         )}
@@ -484,10 +515,12 @@ export default function ProfileDetails() {
 
       {/* Profile Picture Section */}
       <div className="bg-gradient-to-t from-gray-50 to-gray-200 p-6 rounded-lg border border-slate-200 text-center shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-700 mb-4">Profile Picture</h3>
+        <h3 className="text-lg font-semibold text-slate-700 mb-4">
+          Profile Picture
+        </h3>
         <div className="relative inline-block">
           <img
-            src={previewUrl || profile.profileImage || "/d_avatar.png"}
+            src={previewUrl || profile.profileImage || '/d_avatar.png'}
             alt="Profile"
             className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 object-cover rounded-full border-8 border-slate-200 shadow-md mx-auto"
           />
@@ -503,12 +536,14 @@ export default function ProfileDetails() {
             </label>
           )}
         </div>
-        
+
         {/* Crop Modal for Profile Picture */}
         {upImg && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-lg font-semibold mb-4">Crop Profile Picture</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                Crop Profile Picture
+              </h3>
               <ReactCrop
                 crop={crop}
                 onChange={(_, percentCrop) => setCrop(percentCrop)}
@@ -535,7 +570,9 @@ export default function ProfileDetails() {
                   Cancel
                 </button>
                 <button
-                  onClick={() => generateCroppedImage(imgRef.current, completedCrop, false)}
+                  onClick={() =>
+                    generateCroppedImage(imgRef.current, completedCrop, false)
+                  }
                   className="flex-1 px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-900"
                 >
                   Apply Crop
@@ -548,8 +585,10 @@ export default function ProfileDetails() {
 
       {/* ✅ Personal Information Section */}
       <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-700 mb-4">Personal Information</h3>
-        
+        <h3 className="text-lg font-semibold text-slate-700 mb-4">
+          Personal Information
+        </h3>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Email Field */}
           <div>
@@ -560,14 +599,16 @@ export default function ProfileDetails() {
             {isEditing ? (
               <input
                 type="email"
-                value={profile.email || ""}
-                onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
+                value={profile.email || ''}
+                onChange={(e) =>
+                  setProfile((prev) => ({ ...prev, email: e.target.value }))
+                }
                 placeholder="Enter your email"
                 className="w-full border border-slate-200 rounded-md p-2"
               />
             ) : (
               <div className="text-slate-700 p-2 bg-slate-50 rounded-md">
-                {profile.email || "No email provided"}
+                {profile.email || 'No email provided'}
               </div>
             )}
           </div>
@@ -581,14 +622,19 @@ export default function ProfileDetails() {
             {isEditing ? (
               <input
                 type="tel"
-                value={profile.contactNumber || ""}
-                onChange={(e) => setProfile(prev => ({ ...prev, contactNumber: e.target.value }))}
+                value={profile.contactNumber || ''}
+                onChange={(e) =>
+                  setProfile((prev) => ({
+                    ...prev,
+                    contactNumber: e.target.value,
+                  }))
+                }
                 placeholder="Enter your phone number"
                 className="w-full border border-slate-200 rounded-md p-2"
               />
             ) : (
               <div className="text-slate-700 p-2 bg-slate-50 rounded-md">
-                {profile.contactNumber || "No contact number provided"}
+                {profile.contactNumber || 'No contact number provided'}
               </div>
             )}
           </div>
@@ -600,8 +646,10 @@ export default function ProfileDetails() {
         <h3 className="text-lg font-semibold text-slate-700 mb-4">Bio</h3>
         {isEditing ? (
           <textarea
-            value={profile.bio || ""}
-            onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
+            value={profile.bio || ''}
+            onChange={(e) =>
+              setProfile((prev) => ({ ...prev, bio: e.target.value }))
+            }
             placeholder="Tell us about yourself, your experience, and what makes you great at your work..."
             className="w-full border border-slate-200 rounded-md p-3 min-h-[120px] resize-vertical"
             rows={4}
@@ -609,7 +657,9 @@ export default function ProfileDetails() {
         ) : (
           <div className="text-slate-700 p-3 bg-slate-50 rounded-md min-h-[120px]">
             {profile.bio || (
-              <p className="text-slate-500 italic">No bio added yet. Click Edit to add a bio.</p>
+              <p className="text-slate-500 italic">
+                No bio added yet. Click Edit to add a bio.
+              </p>
             )}
           </div>
         )}
@@ -618,7 +668,7 @@ export default function ProfileDetails() {
       {/* ✅ City Selection Section */}
       <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
         <h3 className="text-lg font-semibold text-slate-700 mb-4">Location</h3>
-        
+
         <div className="mb-4">
           <label className="block text-sm font-medium text-slate-600 mb-2">
             Select Your City
@@ -630,16 +680,20 @@ export default function ProfileDetails() {
               className="w-full border border-slate-200 rounded-md p-2"
             >
               <option value="">-- Select Your City --</option>
-              {cities.map((city) => (  // ✅ Using cities array
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
+              {cities.map(
+                (
+                  city // ✅ Using cities array
+                ) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                )
+              )}
             </select>
           ) : (
             <div className="flex items-center gap-2 text-slate-700 p-2 bg-slate-50 rounded-md">
               <span className="font-medium">
-                {profile.city || "No city selected"}
+                {profile.city || 'No city selected'}
               </span>
             </div>
           )}
@@ -647,23 +701,29 @@ export default function ProfileDetails() {
 
         <div className="text-sm text-slate-600">
           <p>
-            <span className="font-medium">Note:</span> Your selected city determines the available skills and their rates. 
-            You can change your city anytime, and your skill rates will be updated automatically.
+            <span className="font-medium">Note:</span> Your selected city
+            determines the available skills and their rates. You can change your
+            city anytime, and your skill rates will be updated automatically.
           </p>
-          {isEditing && selectedCity && !rates.find(r => r.city === selectedCity) && (
-            <p className="text-amber-600 mt-2">
-              ⚠️ No rates defined for {selectedCity}. Skills will show $0/hr rate.
-            </p>
-          )}
+          {isEditing &&
+            selectedCity &&
+            !rates.find((r) => r.city === selectedCity) && (
+              <p className="text-amber-600 mt-2">
+                ⚠️ No rates defined for {selectedCity}. Skills will show $0/hr
+                rate.
+              </p>
+            )}
         </div>
       </div>
 
       {/* ✅ ID Upload Section */}
       <div className="bg-gradient-to-t from-gray-50 to-gray-200 p-6 rounded-lg border border-slate-200 text-center shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-700 mb-4">Government ID / License</h3>
+        <h3 className="text-lg font-semibold text-slate-700 mb-4">
+          Government ID / License
+        </h3>
         <div className="relative inline-block">
           <img
-            src={idPreviewUrl || "/id_placeholder.png"}
+            src={idPreviewUrl || '/id_placeholder.png'}
             alt="ID Preview"
             className="w-64 h-40 object-contain border-4 border-slate-200 rounded-lg shadow-md bg-white mx-auto"
           />
@@ -680,9 +740,11 @@ export default function ProfileDetails() {
           )}
         </div>
         {idPreviewUrl && (
-          <p className="text-sm text-green-600 mt-2">✓ ID image ready to save</p>
+          <p className="text-sm text-green-600 mt-2">
+            ✓ ID image ready to save
+          </p>
         )}
-        
+
         {/* Crop Modal for ID Picture */}
         {idUpImg && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -714,7 +776,13 @@ export default function ProfileDetails() {
                   Cancel
                 </button>
                 <button
-                  onClick={() => generateCroppedImage(idImgRef.current, idCompletedCrop, true)}
+                  onClick={() =>
+                    generateCroppedImage(
+                      idImgRef.current,
+                      idCompletedCrop,
+                      true
+                    )
+                  }
                   className="flex-1 px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-900"
                 >
                   Apply Crop
@@ -730,7 +798,7 @@ export default function ProfileDetails() {
         <h3 className="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
           <Watch size={20} /> Working Hours
         </h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Hours Per Day */}
           <div>
@@ -740,10 +808,12 @@ export default function ProfileDetails() {
             {isEditing ? (
               <select
                 value={profile.workingHours?.hoursPerDay || 8}
-                onChange={(e) => handleWorkingHoursChange('hoursPerDay', e.target.value)}
+                onChange={(e) =>
+                  handleWorkingHoursChange('hoursPerDay', e.target.value)
+                }
                 className="w-full border border-slate-200 rounded-md p-2"
               >
-                {[4, 6, 8, 10, 12].map(hours => (
+                {[4, 6, 8, 10, 12].map((hours) => (
                   <option key={hours} value={hours}>
                     {hours} hours
                   </option>
@@ -767,10 +837,12 @@ export default function ProfileDetails() {
             {isEditing ? (
               <select
                 value={profile.workingHours?.daysPerWeek || 5}
-                onChange={(e) => handleWorkingHoursChange('daysPerWeek', e.target.value)}
+                onChange={(e) =>
+                  handleWorkingHoursChange('daysPerWeek', e.target.value)
+                }
                 className="w-full border border-slate-200 rounded-md p-2"
               >
-                {[1, 2, 3, 4, 5, 6, 7].map(days => (
+                {[1, 2, 3, 4, 5, 6, 7].map((days) => (
                   <option key={days} value={days}>
                     {days} days
                   </option>
@@ -807,7 +879,12 @@ export default function ProfileDetails() {
         {!isEditing && (
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
             <p className="text-sm text-green-700 text-center">
-              <strong>Weekly Schedule:</strong> {profile.workingHours?.hoursPerDay || 8} hours/day × {profile.workingHours?.daysPerWeek || 5} days = <strong>{profile.workingHours?.totalHoursPerWeek || 40} hours/week</strong>
+              <strong>Weekly Schedule:</strong>{' '}
+              {profile.workingHours?.hoursPerDay || 8} hours/day ×{' '}
+              {profile.workingHours?.daysPerWeek || 5} days ={' '}
+              <strong>
+                {profile.workingHours?.totalHoursPerWeek || 40} hours/week
+              </strong>
             </p>
           </div>
         )}
@@ -818,7 +895,7 @@ export default function ProfileDetails() {
         <h3 className="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
           <Clock size={20} /> Availability Timing
         </h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* When can you start work? */}
           <div>
@@ -827,14 +904,16 @@ export default function ProfileDetails() {
             </label>
             {isEditing ? (
               <select
-                value={profile.availabilityTiming?.startWork || "today"}
-                onChange={(e) => setProfile(prev => ({
-                  ...prev,
-                  availabilityTiming: {
-                    ...prev.availabilityTiming,
-                    startWork: e.target.value
-                  }
-                }))}
+                value={profile.availabilityTiming?.startWork || 'today'}
+                onChange={(e) =>
+                  setProfile((prev) => ({
+                    ...prev,
+                    availabilityTiming: {
+                      ...prev.availabilityTiming,
+                      startWork: e.target.value,
+                    },
+                  }))
+                }
                 className="w-full border border-slate-200 rounded-md p-2"
               >
                 <option value="today">Today</option>
@@ -845,8 +924,9 @@ export default function ProfileDetails() {
               <div className="flex items-center gap-2 text-slate-700 p-2 bg-slate-50 rounded-md">
                 <Calendar size={16} />
                 <span className="capitalize font-medium">
-                  {profile.availabilityTiming?.startWork === "in_one_week" ? "In One Week" : 
-                   profile.availabilityTiming?.startWork || "Today"}
+                  {profile.availabilityTiming?.startWork === 'in_one_week'
+                    ? 'In One Week'
+                    : profile.availabilityTiming?.startWork || 'Today'}
                 </span>
               </div>
             )}
@@ -859,11 +939,18 @@ export default function ProfileDetails() {
             </label>
             {isEditing ? (
               <div className="space-y-2">
-                {["morning", "afternoon", "evening"].map((time) => (
-                  <label key={time} className="flex items-center gap-2 cursor-pointer">
+                {['morning', 'afternoon', 'evening'].map((time) => (
+                  <label
+                    key={time}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
                     <input
                       type="checkbox"
-                      checked={profile.availabilityTiming?.preferredTime?.includes(time) || false}
+                      checked={
+                        profile.availabilityTiming?.preferredTime?.includes(
+                          time
+                        ) || false
+                      }
                       onChange={() => handleTimeToggle(time)}
                       className="rounded border-slate-300 text-slate-800 focus:ring-slate-800"
                     />
@@ -881,8 +968,11 @@ export default function ProfileDetails() {
                     {time}
                   </span>
                 ))}
-                {(!profile.availabilityTiming?.preferredTime || profile.availabilityTiming.preferredTime.length === 0) && (
-                  <span className="text-slate-500 text-sm">No preferred times set</span>
+                {(!profile.availabilityTiming?.preferredTime ||
+                  profile.availabilityTiming.preferredTime.length === 0) && (
+                  <span className="text-slate-500 text-sm">
+                    No preferred times set
+                  </span>
                 )}
               </div>
             )}
@@ -896,11 +986,26 @@ export default function ProfileDetails() {
           </label>
           {isEditing ? (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map((day) => (
-                <label key={day} className="flex items-center gap-2 cursor-pointer">
+              {[
+                'monday',
+                'tuesday',
+                'wednesday',
+                'thursday',
+                'friday',
+                'saturday',
+                'sunday',
+              ].map((day) => (
+                <label
+                  key={day}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <input
                     type="checkbox"
-                    checked={profile.availabilityTiming?.availableDays?.includes(day) || false}
+                    checked={
+                      profile.availabilityTiming?.availableDays?.includes(
+                        day
+                      ) || false
+                    }
                     onChange={() => handleDayToggle(day)}
                     className="rounded border-slate-300 text-slate-800 focus:ring-slate-800"
                   />
@@ -920,8 +1025,11 @@ export default function ProfileDetails() {
                   {day.slice(0, 3)}
                 </span>
               ))}
-              {(!profile.availabilityTiming?.availableDays || profile.availabilityTiming.availableDays.length === 0) && (
-                <span className="text-slate-500 text-sm">No available days set</span>
+              {(!profile.availabilityTiming?.availableDays ||
+                profile.availabilityTiming.availableDays.length === 0) && (
+                <span className="text-slate-500 text-sm">
+                  No available days set
+                </span>
               )}
             </div>
           )}
@@ -948,7 +1056,7 @@ export default function ProfileDetails() {
                 key={skill.name}
                 className="flex items-center bg-slate-100 text-slate-700 text-sm font-medium px-3 py-1.5 rounded-full"
               >
-                {skill.name} -{" "}
+                {skill.name} -{' '}
                 <span className="font-bold text-slate-800 ml-1">
                   ${skill.rate}/hr
                 </span>
@@ -968,57 +1076,81 @@ export default function ProfileDetails() {
         </div>
 
         {isEditing && selectedCity && (
-          <div className="mt-6 space-y-4 pt-4 border-t border-slate-200">
-            <div>
-              <label className="block text-sm font-medium text-slate-600 mb-1">
-                Select a skill to add
-              </label>
-              <select
-                value={selectedSkill}
-                onChange={(e) => setSelectedSkill(e.target.value)}
-                className="w-full border border-slate-200 rounded-md p-2"
-              >
-                <option value="">-- Select a Skill --</option>
-                {availableSkills.map((skill) => {
-                  const cityData = rates.find(r => r.city === selectedCity);
-                  const rate = cityData?.services[skill] || 0;
-                  return (
-                    <option key={skill} value={skill}>
-                      {skill} - ${rate}/hr
-                    </option>
-                  );
-                })}
-              </select>
+  <div className="mt-6 space-y-4 pt-4 border-t border-slate-200">
+    <div>
 
-              {selectedSkill && currentRate !== null && (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 p-3 rounded-md border border-slate-200 mt-2 gap-3">
-                  <p className="text-sm font-medium text-slate-700">
-                    {selectedCity} Rate:{" "}
-                    <span className="text-lg font-bold text-slate-900">
-                      ${currentRate}/hr
-                    </span>
-                    {currentRate === 0 && (
-                      <span className="text-amber-600 text-xs ml-2">
-                        (Rate not defined for {selectedCity})
-                      </span>
-                    )}
-                  </p>
-                  <button
-                    onClick={handleAddSkill}
-                    className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-slate-800 text-white rounded-md hover:bg-slate-900 w-full sm:w-auto"
-                  >
-                    <PlusCircle size={16} /> Add Skill
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Skill select */}
+<div>
+      <label className="block text-sm font-medium text-slate-600 mb-1">
+        Select a skill to add
+      </label>
+        <select
+          value={selectedSkill}
+          onChange={(e) => setSelectedSkill(e.target.value)}
+          className="w-full border border-slate-200 rounded-md p-2"
+        >
+          <option value="">-- Select a Skill --</option>
+          {availableSkills.map((skill) => {
+            const cityData = rates.find((r) => r.city === selectedCity);
+            const suggestedRate = cityData?.services?.[skill] || 0;
+            return (
+              <option key={skill} value={skill}>
+                {skill} - ${suggestedRate}/hr
+              </option>
+            );
+          })}
+        </select>
+</div>
+        {/* Rate input */}
+        <div>
+          <label className="block text-xs font-medium text-slate-600 mb-1">
+            Rate (per hour)
+          </label>
+          <input
+            type="number"
+            min="0"
+            value={currentRate ?? ""}
+            onChange={(e) =>
+              setCurrentRate(
+                e.target.value === "" ? null : Number(e.target.value)
+              )
+            }
+            placeholder="e.g. 15"
+            className="w-full border border-slate-200 rounded-md p-2"
+          />
+          {/* <p className="text-[11px] text-slate-500 mt-1">
+            Default city rate load ho jayega, lekin aap yahan change kar sakte hain.
+          </p> */}
+        </div>
+      </div>
+
+      {selectedSkill && currentRate !== null && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 p-3 rounded-md border border-slate-200 mt-3 gap-3">
+          <p className="text-sm font-medium text-slate-700">
+            Final Rate:{" "}
+            <span className="text-lg font-bold text-slate-900">
+              ${currentRate}/hr
+            </span>
+          </p>
+          <button
+            onClick={handleAddSkill}
+            className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-slate-800 text-white rounded-md hover:bg-slate-900 w-full sm:w-auto"
+          >
+            <PlusCircle size={16} /> Add Skill
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
 
         {isEditing && !selectedCity && (
           <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-sm text-yellow-700">
-              <strong>Note:</strong> Please select a city first to see available skills and their rates.
+              <strong>Note:</strong> Please select a city first to see available
+              skills and their rates.
             </p>
           </div>
         )}
@@ -1040,7 +1172,7 @@ export default function ProfileDetails() {
         <p className="text-xs text-slate-500 mt-2">
           Based on your selected skills and city rates
         </p>
-        
+
         {/* Weekly Earning Potential */}
         {profile?.workingHours?.totalHoursPerWeek && (
           <div className="mt-4 pt-4 border-t border-slate-200">
@@ -1049,7 +1181,12 @@ export default function ProfileDetails() {
                 Weekly Earning Potential
               </p>
               <p className="text-2xl font-bold text-blue-600">
-                ${(totalHourlyRate * (profile.workingHours.totalHoursPerWeek || 40)).toFixed(2)}/week
+                $
+                {(
+                  totalHourlyRate *
+                  (profile.workingHours.totalHoursPerWeek || 40)
+                ).toFixed(2)}
+                /week
               </p>
             </div>
             <p className="text-xs text-slate-500 mt-1">
