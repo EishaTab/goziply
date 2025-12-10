@@ -168,7 +168,10 @@ const ServicesDropdown = () => (
       z-50
     "
   >
-    <div className="py-2 flex flex-col">
+    <div
+      className="py-2 flex flex-col
+                 max-h-100 overflow-y-auto"   // <--- Add scroll here
+    >
       {ServicesData.map((service) => (
         <Link
           key={service.id}
@@ -186,6 +189,7 @@ const ServicesDropdown = () => (
     </div>
   </motion.div>
 );
+
 
 /* -------------------------------------------------------------------------- */
 /*                              Profile Dropdown                               */
