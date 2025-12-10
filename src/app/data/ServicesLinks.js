@@ -689,7 +689,7 @@
   ,
   {
     name: "Video & Motion Graphics",
-    href: "/services/DIGITAL-DEVELOPMENT/video-motion-graphics",
+    href: "/services/DIGITAL-DEVELOPMENT/video-and-motion-graphics",
     banner: "/Task22.webp",
     parent: "digital-development",
     faqs: [

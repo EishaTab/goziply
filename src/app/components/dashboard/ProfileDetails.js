@@ -691,11 +691,17 @@ export default function ProfileDetails() {
               )}
             </select>
           ) : (
-            <div className="flex items-center gap-2 text-slate-700 p-2 bg-slate-50 rounded-md">
+          <><div className="flex items-center gap-2 text-slate-700 p-2 bg-slate-50 rounded-md">
               <span className="font-medium">
                 {profile.city || 'No city selected'}
-              </span>
+              </span> 
             </div>
+           {profile?.location?.fullAddress && <div className="flex items-center gap-2 text-slate-700 p-2 rounded-md">
+              <span className="font-xs">
+                {profile?.location?.fullAddress || 'No city selected'}
+              </span>
+            </div>}
+            </>
           )}
         </div>
 
