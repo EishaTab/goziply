@@ -125,6 +125,56 @@ function TaskerMarkers({ center, taskers }) {
 
   return (
     <>
+     <>
+    {/* 👇 CENTER / YOU MARKER */}
+    {center?.lat && center?.lng && (
+      <Marker
+        position={{ lat: center.lat, lng: center.lng }}
+        title="YOU"
+        icon={{
+          url:
+            "data:image/svg+xml;charset=UTF-8," +
+            encodeURIComponent(`
+              <svg xmlns='http://www.w3.org/2000/svg' width='60' height='80'>
+                <ellipse cx='30' cy='75' rx='12' ry='4' fill='rgba(0,0,0,0.25)' />
+                <path d='
+                  M30 5
+                  C18 5 8 15 8 27
+                  C8 45 30 72 30 72
+                  C30 72 52 45 52 27
+                  C52 15 42 5 30 5
+                  Z
+                ' fill='#2563EB'/>
+                <circle cx='30' cy='28' r='13' fill='white'/>
+                <text
+                  x='30'
+                  y='33'
+                  text-anchor='middle'
+                  font-size='12'
+                  font-family='Arial'
+                  font-weight='bold'
+                  fill='#2563EB'
+                >
+                  YOU
+                </text>
+              </svg>
+            `),
+          scaledSize: { width: 48, height: 64 },
+          anchor: { x: 24, y: 64 },
+        }}
+      />
+    )}
+
+    {/* 👇 TASKER MARKERS */}
+    {taskers.map((t, idx) => (
+      <Marker
+        key={t._id || t.id || idx}
+        position={{ lat: t.lat, lng: t.lng }}
+        title={`${t.firstName || ""} ${t.lastName || ""}`}
+        icon={getUserIcon(t.firstName, t.lastName, t.profileImage)}
+      />
+    ))}
+  </>
       {taskers.map((t, idx) => (
         <Marker
           key={t._id || t.id || idx}

@@ -164,7 +164,7 @@ function TaskerCard({ u, selectedService }) {
   const ratingValue = u.rating || 5.0;
   const reviewCount = u.reviewsCount || 2;
   const matchedRate = getHourlyRateByService(u, selectedService);
-  console.log('matchedRate',matchedRate, selectedService)
+  console.log('matchedRate', matchedRate, selectedService);
   const taskStats = {
     primaryTasks: 1263,
     primaryTaskType: 'Furniture Assembly',
@@ -217,13 +217,17 @@ function TaskerCard({ u, selectedService }) {
                 <span>{reviewCount} reviews</span>
               </div>
 
-              {u.bio && <p className="mt-3 text-sm text-gray-600">{u.bio}</p>}
+              {(u.bio || u.about) && (
+                <p className="mt-3 text-sm text-gray-600">{u.bio || u.about}</p>
+              )}
             </div>
 
             <div className="flex-shrink-0 text-right">
-             {matchedRate && <div className="text-lg font-bold">
-                ${matchedRate.toFixed(2)}/hr
-              </div>}
+              {matchedRate && (
+                <div className="text-lg font-bold">
+                  ${matchedRate.toFixed(2)}/hr
+                </div>
+              )}
 
               {/* <button
                 onClick={() => onSelect(u)}
@@ -234,22 +238,39 @@ function TaskerCard({ u, selectedService }) {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-gray-500">
+          {/* <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-gray-500">
             <div className="rounded-md bg-gray-50 p-2">
               {taskStats.primaryTasks} {taskStats.primaryTaskType}
             </div>
             <div className="rounded-md bg-gray-50 p-2">
               {taskStats.totalTasks} {taskStats.overallTaskType} overall
             </div>
-          </div>
+          </div> */}
 
           <div className="mt-4">
             <div className="font-bold text-gray-900">Contact:</div>
 
             <div className="text-sm text-gray-700 my-1">
-              {u.email && <div>Email: {u.email}</div>}
-              {u.phone && <div>Phone: {u.phone}</div>}
-              {!u.email && !u.phone && '—'}
+              {/* Email / Phone */}
+              {u.email || u.phone ? (
+                <>
+                  {u.email && <div>Email: {u.email}</div>}
+                  {u.phone && <div>Phone: {u.phone}</div>}
+                </>
+              ) : (
+                <div>—</div>
+              )}
+
+              {/* Location */}
+              {u.location?.city || u.location?.country ? (
+                <div>
+                  {u.location?.city && <span>{u.location.city}</span>}
+                  {u.location?.city && u.location?.country && ', '}
+                  {u.location?.country && <span>{u.location.country}</span>}
+                </div>
+              ) : (
+                <div>—</div>
+              )}
             </div>
             <div className="mb-2 flex flex-wrap gap-2">
               {Array.isArray(u.skills) && u.skills.length > 0 ? (
@@ -773,7 +794,7 @@ export default function BookNow() {
                               key={u._id || u.id}
                               u={u}
                               onSelect={setSelectedTasker}
-                              selectedService={form?.service }
+                              selectedService={form?.service}
                             />
                           ))}
                         </div>
@@ -804,7 +825,7 @@ export default function BookNow() {
 }
 function getHourlyRateByService(tasker, selectedService) {
   if (!tasker || !selectedService) return null;
-console.log('rasker', tasker, selectedService)
+  console.log('rasker', tasker, selectedService);
   const skill = tasker.skills?.find(
     (s) => s.name?.toLowerCase() === selectedService?.toLowerCase()
   );
