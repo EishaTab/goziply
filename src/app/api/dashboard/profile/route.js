@@ -67,6 +67,7 @@ export async function GET() {
       hourlyRate: user.hourlyRate || 0,
       rating: user.rating || 0,
       reviewsCount: user.reviewsCount || 0,
+      location:user.location || {fullAddress: user.city} ,
       
       // Availability
       availability: user.availability !== undefined ? user.availability : true,

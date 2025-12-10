@@ -1,14 +1,19 @@
 "use client";
 
 import React, { useMemo, useEffect } from "react";
-import { APIProvider, Map, Marker, useMap } from "@vis.gl/react-google-maps";
+import {
+  APIProvider,
+  Map as GoogleMap,   // 👈 yahan rename
+  Marker,
+  useMap,
+} from "@vis.gl/react-google-maps";
 
 const DEFAULT_CENTER = { lat: 34.0522, lng: -118.2437 }; // fallback
 
 export default function TaskerMap({ taskers = [], centerLocation }) {
   const center = centerLocation || DEFAULT_CENTER;
 
-  // --- NORMALIZE TASKERS ---
+  // --- NORMALIZE + SPREAD TASKERS ---
   const normalizedTaskers = useMemo(() => {
     if (!Array.isArray(taskers)) return [];
 
@@ -20,7 +25,6 @@ export default function TaskerMap({ taskers = [], centerLocation }) {
         const lat = rawLat != null ? parseFloat(rawLat) : null;
         const lng = rawLng != null ? parseFloat(rawLng) : null;
 
-        // invalid / default coords hata do
         if (
           !Number.isFinite(lat) ||
           !Number.isFinite(lng) ||
@@ -33,21 +37,53 @@ export default function TaskerMap({ taskers = [], centerLocation }) {
       })
       .filter(Boolean);
 
-    console.log("TASKERS NORMALIZED =>", list);
-    return list;
+    // 👇 yahan hum JS Map use kar rahe hain, ab ye built-in Map hai
+    const groups = new Map();
+
+    list.forEach((t) => {
+      const key = `${t.lat.toFixed(6)}_${t.lng.toFixed(6)}`;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(t);
+    });
+
+    const adjusted = [];
+    const RADIUS_DEG = 0.00025; // ~20–30m
+
+    groups.forEach((arr) => {
+      if (arr.length === 1) {
+        adjusted.push(arr[0]);
+        return;
+      }
+
+      const count = arr.length;
+      arr.forEach((t, idx) => {
+        const angle = (2 * Math.PI * idx) / count;
+        const deltaLat = RADIUS_DEG * Math.cos(angle);
+        const deltaLng = RADIUS_DEG * Math.sin(angle);
+
+        adjusted.push({
+          ...t,
+          lat: t.lat + deltaLat,
+          lng: t.lng + deltaLng,
+        });
+      });
+    });
+
+    console.log("TASKERS NORMALIZED + SPREAD =>", adjusted);
+    return adjusted;
   }, [taskers]);
 
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY}>
-      <Map
+      <GoogleMap
         style={{ width: "100%", height: "100%", borderRadius: "16px" }}
-        defaultCenter={center}
+        center={center}
         defaultZoom={13}
         gestureHandling="greedy"
         disableDefaultUI={true}
       >
         <TaskerMarkers center={center} taskers={normalizedTaskers} />
-      </Map>
+      </GoogleMap>
     </APIProvider>
   );
 }
@@ -58,7 +94,6 @@ function TaskerMarkers({ center, taskers }) {
   useEffect(() => {
     if (!map || typeof window === "undefined") return;
 
-    // koi tasker nahi -> normal zoom
     if (!taskers.length) {
       map.setCenter(center);
       map.setZoom(13);
@@ -72,18 +107,74 @@ function TaskerMarkers({ center, taskers }) {
 
     map.fitBounds(bounds, 80);
 
-    // zoom bahut chhota ho gaya ho to thoda restrict karo
+    const MIN_ZOOM = 11;
+    const MAX_ZOOM = 14;
+
     const listener = map.addListener("idle", () => {
       const z = map.getZoom();
-      if (z < 11) {
-        map.setZoom(13); // yahan apna min zoom choose karo
+
+      if (z < MIN_ZOOM) {
+        map.setZoom(MIN_ZOOM);
+      } else if (z > MAX_ZOOM) {
+        map.setZoom(MAX_ZOOM);
       }
+
       window.google.maps.event.removeListener(listener);
     });
   }, [map, center, taskers]);
 
   return (
     <>
+     <>
+    {/* 👇 CENTER / YOU MARKER */}
+    {center?.lat && center?.lng && (
+      <Marker
+        position={{ lat: center.lat, lng: center.lng }}
+        title="YOU"
+        icon={{
+          url:
+            "data:image/svg+xml;charset=UTF-8," +
+            encodeURIComponent(`
+              <svg xmlns='http://www.w3.org/2000/svg' width='60' height='80'>
+                <ellipse cx='30' cy='75' rx='12' ry='4' fill='rgba(0,0,0,0.25)' />
+                <path d='
+                  M30 5
+                  C18 5 8 15 8 27
+                  C8 45 30 72 30 72
+                  C30 72 52 45 52 27
+                  C52 15 42 5 30 5
+                  Z
+                ' fill='#2563EB'/>
+                <circle cx='30' cy='28' r='13' fill='white'/>
+                <text
+                  x='30'
+                  y='33'
+                  text-anchor='middle'
+                  font-size='12'
+                  font-family='Arial'
+                  font-weight='bold'
+                  fill='#2563EB'
+                >
+                  YOU
+                </text>
+              </svg>
+            `),
+          scaledSize: { width: 48, height: 64 },
+          anchor: { x: 24, y: 64 },
+        }}
+      />
+    )}
+
+    {/* 👇 TASKER MARKERS */}
+    {taskers.map((t, idx) => (
+      <Marker
+        key={t._id || t.id || idx}
+        position={{ lat: t.lat, lng: t.lng }}
+        title={`${t.firstName || ""} ${t.lastName || ""}`}
+        icon={getUserIcon(t.firstName, t.lastName, t.profileImage)}
+      />
+    ))}
+  </>
       {taskers.map((t, idx) => (
         <Marker
           key={t._id || t.id || idx}
@@ -98,8 +189,7 @@ function TaskerMarkers({ center, taskers }) {
 
 // SAME getUserIcon as before
 const getUserIcon = (firstName, lastName, profileImage) => {
-  const initials =
-    (firstName?.[0] || "") + (lastName?.[0] || "");
+  const initials = (firstName?.[0] || "") + (lastName?.[0] || "");
   const initialsClean = initials.toUpperCase();
 
   const shouldUseInitials =
@@ -146,7 +236,6 @@ const getUserIcon = (firstName, lastName, profileImage) => {
     <svg xmlns='http://www.w3.org/2000/svg' width='60' height='80'>
       <ellipse cx='30' cy='75' rx='12' ry='4' fill='rgba(0,0,0,0.25)' />
       <path d="${pinPath}" fill='#FFC107'/>
-
       <circle cx='30' cy='28' r='13' fill='white'/>
       <defs>
         <clipPath id='clipCircle'>
