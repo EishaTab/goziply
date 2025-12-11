@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
-import User from '../models/User';
-import PasswordReset from '../models/PasswordReset';
-import { connectDB } from '../lib/db';
-import { sendEmail } from '../api/utils/sendEmial'; // ✅ added import
+import User from '@/app/models/User';
+import PasswordReset from '@/app/models/PasswordReset';
+import { connectDB } from '@/app/lib/db';
+import { sendEmail } from '@/app/api/utils/sendEmail'; // ✅ added import
 
 // ---------- constants ----------
 const OTP_TTL_MINUTES = 10;

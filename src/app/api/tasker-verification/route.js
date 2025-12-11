@@ -1,20 +1,21 @@
-import User from "@/models/User";
-import { connectDB } from "@/lib/mongoose";
+import User from '@/app/models/User';
+import { connectDB } from '@/app/lib/db';
 
 export async function POST(req) {
   try {
     await connectDB();
-    const { userId, idType, idNumber, idImageFront, idImageBack } = await req.json();
+    const { userId, idType, idNumber, idImageFront, idImageBack } =
+      await req.json();
 
     // save info and mark as pending
     const updated = await User.findByIdAndUpdate(
       userId,
       {
-        "identityVerification.idType": idType,
-        "identityVerification.idNumber": idNumber,
-        "identityVerification.idImageFront": idImageFront,
-        "identityVerification.idImageBack": idImageBack,
-        "identityVerification.status": "pending",
+        'identityVerification.idType': idType,
+        'identityVerification.idNumber': idNumber,
+        'identityVerification.idImageFront': idImageFront,
+        'identityVerification.idImageBack': idImageBack,
+        'identityVerification.status': 'pending',
         isVerified: false,
       },
       { new: true }
@@ -22,7 +23,10 @@ export async function POST(req) {
 
     return Response.json({ success: true, user: updated });
   } catch (err) {
-    console.error("Upload verification failed:", err);
-    return Response.json({ success: false, message: err.message }, { status: 500 });
+    console.error('Upload verification failed:', err);
+    return Response.json(
+      { success: false, message: err.message },
+      { status: 500 }
+    );
   }
 }

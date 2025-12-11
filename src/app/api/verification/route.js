@@ -1,5 +1,5 @@
-import User from "@/models/User";
-import { connectDB } from "@/lib/mongoose";
+import User from '@/app/models/User';
+import { connectDB } from '@/app/lib/db';
 
 export async function POST(req) {
   try {
@@ -9,8 +9,8 @@ export async function POST(req) {
     const updated = await User.findByIdAndUpdate(
       userId,
       {
-        "identityVerification.status": approve ? "approved" : "rejected",
-        "identityVerification.verifiedAt": approve ? new Date() : null,
+        'identityVerification.status': approve ? 'approved' : 'rejected',
+        'identityVerification.verifiedAt': approve ? new Date() : null,
         isVerified: approve,
       },
       { new: true }
@@ -18,6 +18,9 @@ export async function POST(req) {
 
     return Response.json({ success: true, user: updated });
   } catch (err) {
-    return Response.json({ success: false, message: err.message }, { status: 500 });
+    return Response.json(
+      { success: false, message: err.message },
+      { status: 500 }
+    );
   }
 }
