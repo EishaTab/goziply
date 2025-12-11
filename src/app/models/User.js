@@ -93,7 +93,15 @@ const userSchema = new mongoose.Schema(
       maxlength: 1000,
       default: ""
     },
-
+    isRemote:{
+      type:Boolean,
+      default: false
+    },
+    languages:[
+      {
+        type:String
+      }
+    ],
     // 📅 Availability Timing - NEW (چونکہ frontend میں یہ موجود ہے)
     availabilityTiming: {
       startWork: { 

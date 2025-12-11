@@ -101,7 +101,8 @@ export async function GET() {
       isVerified: user.isVerified || false,
       isApproved: user.isApproved || false,
       twoFA: user.twoFA || false,
-      
+      languages:user.languages || [],
+      isRemote:user.isRemote || false,
       // Additional fields that might be needed
       firstName: user.firstName || '',
       lastName: user.lastName || '',

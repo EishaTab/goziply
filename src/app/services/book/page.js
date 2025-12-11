@@ -165,6 +165,7 @@ function TaskerCard({ u, selectedService }) {
   const reviewCount = u.reviewsCount || 2;
   const matchedRate = getHourlyRateByService(u, selectedService);
   console.log('matchedRate', matchedRate, selectedService);
+
   const taskStats = {
     primaryTasks: 1263,
     primaryTaskType: 'Furniture Assembly',
@@ -228,24 +229,8 @@ function TaskerCard({ u, selectedService }) {
                   ${matchedRate.toFixed(2)}/hr
                 </div>
               )}
-
-              {/* <button
-                onClick={() => onSelect(u)}
-                className="mt-4 w-full rounded-full bg-black px-4 py-2 text-sm text-white"
-              >
-                Select & Continue
-              </button> */}
             </div>
           </div>
-
-          {/* <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-gray-500">
-            <div className="rounded-md bg-gray-50 p-2">
-              {taskStats.primaryTasks} {taskStats.primaryTaskType}
-            </div>
-            <div className="rounded-md bg-gray-50 p-2">
-              {taskStats.totalTasks} {taskStats.overallTaskType} overall
-            </div>
-          </div> */}
 
           <div className="mt-4">
             <div className="font-bold text-gray-900">Contact:</div>
@@ -272,6 +257,7 @@ function TaskerCard({ u, selectedService }) {
                 <div>—</div>
               )}
             </div>
+
             <div className="mb-2 flex flex-wrap gap-2">
               {Array.isArray(u.skills) && u.skills.length > 0 ? (
                 u.skills.slice(0, 6).map((s, i) => (
@@ -287,6 +273,7 @@ function TaskerCard({ u, selectedService }) {
               )}
             </div>
 
+            {/* Availability */}
             {u.availabilityTiming && (
               <div className="mt-3 flex flex-wrap gap-2">
                 <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
@@ -315,12 +302,32 @@ function TaskerCard({ u, selectedService }) {
                   ))}
               </div>
             )}
+
+            {/* Remote / Local Work Status */}
+            <div className="mt-3 flex items-center gap-2">
+              <div className="font-bold text-gray-900">Work Status:</div>
+              <div className="text-sm text-gray-700">
+                {u.isRemote ? 'Remotely' : 'Locally'}
+              </div>
+            </div>
+
+            {/* Languages */}
+            <div className="mt-1 flex items-center gap-2">
+              <div className="font-bold text-gray-900">Languages:</div>
+              <div className="text-sm text-gray-700 my-1">
+                {u.languages && u.languages.length > 0
+                  ? u.languages.join(', ')
+                  : 'Not added'}
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </article>
   );
 }
+
+
 
 // Filters Sidebar — improved styling + sticky on large screens
 function FiltersSidebar({ serviceName, taskerCount, filters, onFilterChange }) {
@@ -630,14 +637,14 @@ export default function BookNow() {
   return (
     <div className="w-full px-4 md:px-10 pb-12">
       <div className="mx-auto max-w-[1400px] pt-8">
-        {/* <header className="mb-6">
+        <header className="mb-6">
           <h1 className="text-2xl font-extrabold">Book {serviceName}</h1>
           <p className="mt-2 text-sm text-gray-600">
             {serviceName !== 'General Service' && serviceName !== 'Service'
               ? `Available taskers for ${serviceName}`
               : 'Browse all available taskers'}
           </p>
-        </header> */}
+        </header>
 
         {step <= 3 && (
           <form onSubmit={(e) => e.preventDefault()} className="space-y-6">

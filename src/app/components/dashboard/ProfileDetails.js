@@ -25,6 +25,8 @@ import { cities } from '../../data/rates'; // ✅ NEW: Cities array
 // import { services } from "../../data/rates"; // ✅ NEW: Services array
 import { rates } from '../../data/rates'; // ✅ NEW: Rates with new structure
 import ServicesData from '@/app/data/ServicesLinks';
+import { Select, MenuItem, Checkbox, ListItemText, FormControl, InputLabel, Switch } from '@mui/material';
+
 
 export default function ProfileDetails() {
   const { data: session } = useSession();
@@ -52,6 +54,8 @@ export default function ProfileDetails() {
   const [idCompletedCrop, setIdCompletedCrop] = useState(null);
   const [idPreviewUrl, setIdPreviewUrl] = useState('');
   const idImgRef = useRef(null);
+  const [isRemote, setIsRemote] = useState(false);
+  const [selectedLanguages, setSelectedLanguages] = useState([]);
 
   // Helper: enrich data
   // Helper: enrich data
@@ -118,7 +122,8 @@ export default function ProfileDetails() {
         setProfile(enriched);
         setOriginalProfile(enriched);
         setSelectedCity(data.user.city || '');
-
+        setSelectedLanguages(data.user?.languages || []);
+        setIsRemote(data.user?.isRemote || false)
         // Set previews if exist
         if (data.user.profileImage) {
           setPreviewUrl(data.user.profileImage);
@@ -461,6 +466,21 @@ export default function ProfileDetails() {
   const totalHourlyRate =
     profile?.skills.reduce((sum, s) => sum + (s.rate || 0), 0) || 0;
 
+    const handleRemoteChange = (event) => {
+      setIsRemote(event.target.checked);
+      setProfile((prev) => ({
+        ...prev,
+        isRemote: event.target.checked,
+      }));
+    };
+  
+    const handleLanguagesChange = (event) => {
+      setSelectedLanguages(event.target.value);
+      setProfile((prev) => ({
+        ...prev,
+        languages: event.target.value,
+      }));
+    };
   if (!profile)
     return (
       <p className="text-center py-10 text-slate-500">Loading profile...</p>
@@ -895,6 +915,63 @@ export default function ProfileDetails() {
           </div>
         )}
       </div>
+    {/* Preferences Section */}
+{/* ✅ Preferences Section */}
+<div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+  <h3 className="text-lg font-semibold text-slate-700 mb-4">Preferences</h3>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {/* Remote Work Preference */}
+    <div>
+      <label className="block text-sm font-medium text-slate-600 mb-2">
+        Remote Work
+      </label>
+      {isEditing ? (
+        <Switch
+          checked={isRemote}
+          onChange={handleRemoteChange}
+          color="primary"
+          name="isRemote"
+          inputProps={{ 'aria-label': 'Remote Work Toggle' }}
+        />
+      ) : (
+        <div className="text-slate-700 p-2 bg-slate-50 rounded-md">
+          {isRemote ? 'Remote' : 'Not Remote'}
+        </div>
+      )}
+    </div>
+
+    {/* Languages Preference */}
+    <div>
+      <label className="block text-sm font-medium text-slate-600 mb-2">
+        Languages
+      </label>
+      {isEditing ? (
+        <FormControl fullWidth>
+          <Select
+            multiple
+            value={selectedLanguages}
+            onChange={handleLanguagesChange}
+            renderValue={(selected) => selected.join(', ')}
+            MenuProps={{ PaperProps: { sx: { maxHeight: 200 } } }}
+          >
+            {['English', 'Spanish', 'French', 'German', 'Chinese'].map((language) => (
+              <MenuItem key={language} value={language}>
+                <Checkbox checked={selectedLanguages.indexOf(language) > -1} />
+                <ListItemText primary={language} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      ) : (
+        <div className="text-slate-700 p-2 bg-slate-50 rounded-md">
+          {selectedLanguages.length > 0
+            ? selectedLanguages.join(', ')
+            : 'No languages selected'}
+        </div>
+      )}
+    </div>
+  </div>
+</div>
 
       {/* ✅ Availability Timing Section */}
       <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">

@@ -77,7 +77,7 @@ export default function TaskerMap({ taskers = [], centerLocation }) {
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY}>
       <GoogleMap
         style={{ width: "100%", height: "100%", borderRadius: "16px" }}
-        center={center}
+        defaultCenter={center}
         defaultZoom={13}
         gestureHandling="greedy"
         disableDefaultUI={true}

@@ -1,22 +1,22 @@
-import { connectDB } from "@/app/lib/db";
-import User from "@/app/models/User";
-import bcrypt from "bcrypt";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { NextResponse } from "next/server";
-import { rates } from "@/app/data/rates";
+import { connectDB } from '@/app/lib/db';
+import User from '@/app/models/User';
+import bcrypt from 'bcrypt';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { NextResponse } from 'next/server';
+import { rates } from '@/app/data/rates';
 
 export async function PUT(req) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
 
     const body = await req.json();
-    console.log("🔍 DEBUG - Received update data:", { 
+    console.log('🔍 DEBUG - Received update data:', {
       userId: session.user.id,
       skills: body.skills,
       city: body.city,
@@ -25,29 +25,31 @@ export async function PUT(req) {
       availabilityTiming: body.availabilityTiming,
       workingHours: body.workingHours,
       identityVerification: body.identityVerification,
-      bio: body.bio
+      bio: body.bio,
+      isRemote: body.isRemote,
+      languages: body.languages,
     });
 
     const user = await User.findById(session.user.id);
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    console.log("🔍 DEBUG - User before update:", {
+    console.log('🔍 DEBUG - User before update:', {
       currentSkills: user.skills,
       currentCity: user.city,
       currentEmail: user.email,
       currentPhone: user.phone,
       currentCountryCode: user.countryCode,
       currentAvailabilityTiming: user.availabilityTiming,
-      currentWorkingHours: user.workingHours
+      currentWorkingHours: user.workingHours,
     });
 
     // --- 🔐 Password Update ---
     if (body.newPassword) {
       if (!body.currentPassword) {
         return NextResponse.json(
-          { error: "Current password required." },
+          { error: 'Current password required.' },
           { status: 400 }
         );
       }
@@ -55,13 +57,13 @@ export async function PUT(req) {
       const isValid = await bcrypt.compare(body.currentPassword, user.password);
       if (!isValid)
         return NextResponse.json(
-          { error: "Incorrect current password." },
+          { error: 'Incorrect current password.' },
           { status: 400 }
         );
 
       if (body.newPassword.length < 8)
         return NextResponse.json(
-          { error: "Password must be at least 8 characters." },
+          { error: 'Password must be at least 8 characters.' },
           { status: 400 }
         );
 
@@ -71,7 +73,7 @@ export async function PUT(req) {
       );
       if (isSamePassword)
         return NextResponse.json(
-          { error: "New password cannot be same as current." },
+          { error: 'New password cannot be same as current.' },
           { status: 400 }
         );
 
@@ -80,24 +82,24 @@ export async function PUT(req) {
     }
 
     // --- 🧩 Two-Factor Auth ---
-    if (typeof body.twoFA === "boolean") {
+    if (typeof body.twoFA === 'boolean') {
       user.twoFA = body.twoFA;
     }
 
     // --- 📝 Profile Updates - UPDATED WITH ALL NEW FIELDS ---
     const editableFields = [
-      "firstName",
-      "lastName",
-      "username",
-      "profileImage",
-      "city",
-      "bio",
-      "availability",
-      "identityVerification",
-      "fullAddress",
-      "availabilityTiming",
-      "workingHours",
-      "zipCode"
+      'firstName',
+      'lastName',
+      'username',
+      'profileImage',
+      'city',
+      'bio',
+      'availability',
+      'identityVerification',
+      'fullAddress',
+      'availabilityTiming',
+      'workingHours',
+      'zipCode',
     ];
 
     for (const field of editableFields) {
@@ -113,60 +115,60 @@ export async function PUT(req) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(body.email)) {
         return NextResponse.json(
-          { error: "Invalid email format." },
+          { error: 'Invalid email format.' },
           { status: 400 }
         );
       }
 
       // Check if email already exists
-      const existingEmail = await User.findOne({ 
+      const existingEmail = await User.findOne({
         email: body.email.toLowerCase(),
-        _id: { $ne: session.user.id }
+        _id: { $ne: session.user.id },
       });
-      
+
       if (existingEmail) {
         return NextResponse.json(
-          { error: "Email already in use by another account." },
+          { error: 'Email already in use by another account.' },
           { status: 400 }
         );
       }
-      
+
       user.email = body.email.toLowerCase();
-      console.log("✅ Updated email:", user.email);
+      console.log('✅ Updated email:', user.email);
     }
 
     // --- 📱 Contact Number Update (with parsing) ---
     if (body.contactNumber) {
       // Remove any non-digit characters
       const cleanedNumber = body.contactNumber.replace(/\D/g, '');
-      
+
       if (cleanedNumber.length < 10) {
         return NextResponse.json(
-          { error: "Invalid phone number. Must be at least 10 digits." },
+          { error: 'Invalid phone number. Must be at least 10 digits.' },
           { status: 400 }
         );
       }
-      
+
       // Extract country code (assume first 1-3 digits) and phone number
-      let countryCode = "1"; // Default for US/Canada
+      let countryCode = '1'; // Default for US/Canada
       let phoneNumber = cleanedNumber;
-      
+
       if (cleanedNumber.length > 10) {
         // Try to extract country code
         countryCode = cleanedNumber.substring(0, cleanedNumber.length - 10);
         phoneNumber = cleanedNumber.substring(countryCode.length);
       }
-      
+
       user.countryCode = `+${countryCode}`;
       user.phone = phoneNumber;
-      console.log("✅ Updated contact:", { 
-        countryCode: user.countryCode, 
+      console.log('✅ Updated contact:', {
+        countryCode: user.countryCode,
         phone: user.phone,
-        fullContact: `${user.countryCode}${user.phone}`
+        fullContact: `${user.countryCode}${user.phone}`,
       });
     }
-    console.log("skills", body.skills)
-// user.skills = body.skills;
+    console.log('skills', body.skills);
+    // user.skills = body.skills;
     // --- 🛠️ Skills Update ---
     // if (body.skills !== undefined) {
     //   if (Array.isArray(body.skills)) {
@@ -181,23 +183,38 @@ export async function PUT(req) {
     //           }
     //         }
     //       })
-        
+
     //     user.skills = normalizedSkills;
     //     console.log("✅ Normalized skills:", normalizedSkills);
     //   } else {
     //     user.skills = [];
     //   }
     // }
-user.skills= body.skills
+    user.skills = body.skills;
+    // --- 🛠️ Languages Update ---
+    if (Array.isArray(body.languages)) {
+      user.languages = body.languages; // Ensure it's an array
+      console.log('✅ Updated languages:', user.languages);
+    } else {
+      user.languages = []; // Fallback to an empty array if not provided
+    }
+
+    // --- 🛠️ Remote Work Update ---
+    if (typeof body.isRemote === 'boolean') {
+      user.isRemote = body.isRemote; // Only update if it's a boolean
+      console.log('✅ Updated remote preference:', user.isRemote);
+    } else {
+      user.isRemote = user.isRemote || false; // Default to false if not provided
+    }
     // --- 🧠 Username Uniqueness Check ---
     if (body.username && body.username !== user.username) {
-      const existingUser = await User.findOne({ 
+      const existingUser = await User.findOne({
         username: body.username.toLowerCase(),
-        _id: { $ne: session.user.id }
+        _id: { $ne: session.user.id },
       });
       if (existingUser) {
         return NextResponse.json(
-          { error: "Username already taken." },
+          { error: 'Username already taken.' },
           { status: 400 }
         );
       }
@@ -221,62 +238,78 @@ user.skills= body.skills
 
         user.hourlyRate = total;
         console.log(
-          "💰 Calculated hourly rate:",
+          '💰 Calculated hourly rate:',
           total,
-          "for skills:",
+          'for skills:',
           // skillNames,
-          "in city:",
+          'in city:',
           user.city
         );
       } else {
-        console.log("❌ City data not found for:", user.city);
+        console.log('❌ City data not found for:', user.city);
         user.hourlyRate = 0;
       }
     } else {
-      console.log("❌ City or skills missing for hourly rate calculation");
+      console.log('❌ City or skills missing for hourly rate calculation');
       user.hourlyRate = 0;
     }
 
     // --- 🕐 Validate availabilityTiming structure ---
     if (body.availabilityTiming) {
       user.availabilityTiming = {
-        startWork: ["today", "tomorrow", "in_one_week"].includes(body.availabilityTiming.startWork)
+        startWork: ['today', 'tomorrow', 'in_one_week'].includes(
+          body.availabilityTiming.startWork
+        )
           ? body.availabilityTiming.startWork
-          : "today",
+          : 'today',
         preferredTime: Array.isArray(body.availabilityTiming.preferredTime)
-          ? body.availabilityTiming.preferredTime.filter(time => 
-              ["morning", "afternoon", "evening"].includes(time)
+          ? body.availabilityTiming.preferredTime.filter((time) =>
+              ['morning', 'afternoon', 'evening'].includes(time)
             )
-          : ["morning", "afternoon", "evening"],
+          : ['morning', 'afternoon', 'evening'],
         availableDays: Array.isArray(body.availabilityTiming.availableDays)
-          ? body.availabilityTiming.availableDays.filter(day => 
-              ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].includes(day)
+          ? body.availabilityTiming.availableDays.filter((day) =>
+              [
+                'monday',
+                'tuesday',
+                'wednesday',
+                'thursday',
+                'friday',
+                'saturday',
+                'sunday',
+              ].includes(day)
             )
-          : ["monday", "tuesday", "wednesday", "thursday", "friday"]
+          : ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
       };
-      console.log("✅ Updated availabilityTiming:", user.availabilityTiming);
+      console.log('✅ Updated availabilityTiming:', user.availabilityTiming);
     }
 
     // --- ⏰ Validate workingHours structure ---
     if (body.workingHours) {
-      const hoursPerDay = Math.min(Math.max(parseInt(body.workingHours.hoursPerDay) || 8, 1), 24);
-      const daysPerWeek = Math.min(Math.max(parseInt(body.workingHours.daysPerWeek) || 5, 1), 7);
+      const hoursPerDay = Math.min(
+        Math.max(parseInt(body.workingHours.hoursPerDay) || 8, 1),
+        24
+      );
+      const daysPerWeek = Math.min(
+        Math.max(parseInt(body.workingHours.daysPerWeek) || 5, 1),
+        7
+      );
       const totalHoursPerWeek = hoursPerDay * daysPerWeek;
 
       user.workingHours = {
         hoursPerDay: hoursPerDay,
         daysPerWeek: daysPerWeek,
-        totalHoursPerWeek: totalHoursPerWeek
+        totalHoursPerWeek: totalHoursPerWeek,
       };
-      console.log("✅ Updated workingHours:", user.workingHours);
+      console.log('✅ Updated workingHours:', user.workingHours);
     }
 
     // Update timestamps
     user.updatedAt = new Date();
-    console.log("user.skills",user)
+    console.log('user.skills', user);
     await user.save();
 
-    console.log("✅ User after save:", { 
+    console.log('✅ User after save:', {
       id: user._id,
       skills: user.skills,
       skillsLength: user.skills?.length,
@@ -285,7 +318,7 @@ user.skills= body.skills
       email: user.email,
       contact: `${user.countryCode}${user.phone}`,
       availabilityTiming: user.availabilityTiming,
-      workingHours: user.workingHours
+      workingHours: user.workingHours,
     });
 
     // Prepare response user object
@@ -300,31 +333,35 @@ user.skills= body.skills
       profileImage: user.profileImage || '/d_avatar.png',
       identityVerification: user.identityVerification || {},
       availabilityTiming: user.availabilityTiming || {
-        startWork: "today",
-        preferredTime: ["morning", "afternoon", "evening"],
-        availableDays: ["monday", "tuesday", "wednesday", "thursday", "friday"]
+        startWork: 'today',
+        preferredTime: ['morning', 'afternoon', 'evening'],
+        availableDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
       },
       workingHours: user.workingHours || {
         hoursPerDay: 8,
         daysPerWeek: 5,
-        totalHoursPerWeek: 40
+        totalHoursPerWeek: 40,
       },
       hourlyRate: user.hourlyRate,
       fullAddress: user.fullAddress,
       availability: user.availability,
       username: user.username,
-      role: user.role
+      role: user.role,
+      isRemote: user.isRemote,
+      languages:user.languages
     };
 
-    return NextResponse.json({ 
-      success: true, 
-      user: responseUser 
+    return NextResponse.json({
+      success: true,
+      user: responseUser,
     });
-    
   } catch (err) {
-    console.error("❌ Update user error:", err);
-    return NextResponse.json({ 
-      error: "Update failed. Please try again." 
-    }, { status: 500 });
+    console.error('❌ Update user error:', err);
+    return NextResponse.json(
+      {
+        error: 'Update failed. Please try again.',
+      },
+      { status: 500 }
+    );
   }
 }
