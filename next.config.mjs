@@ -1,15 +1,11 @@
-import path from 'path';
+const path = require('path');  // Import path for CommonJS
 
-const nextConfig = {
+module.exports = {
   webpack(config) {
-    const __dirname = path.dirname(new URL(import.meta.url).pathname);  // Replacing __dirname for ES modules
-    
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': path.resolve(__dirname, 'app'),  // Adjust 'app' to your project directory
+      '@': path.resolve(__dirname, 'src'),  // Adjust 'src' if your app is in a different directory
     };
     return config;
   },
 };
-
-export default nextConfig;
