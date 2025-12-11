@@ -4,7 +4,7 @@ export default {
   webpack(config) {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': path.resolve('src'),
+      '@': path.resolve('src'),  // Now @ points to 'src'
     };
     return config;
   },
