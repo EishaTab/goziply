@@ -21,7 +21,7 @@
     "framer-motion": "^12.23.18",
     "lucide-react": "^0.544.0",
     "mongoose": "^8.17.1",
-    "next": "15.4.6",
+    "next": "15.4.8",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.10.1",
     "react": "19.1.0",
